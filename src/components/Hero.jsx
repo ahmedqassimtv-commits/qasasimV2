@@ -17,7 +17,10 @@ export default function Hero() {
   const gl = useRef(null)
 
   useEffect(() => {
-    gl.current = new HeroGL(canvas.current, { a: hero.imageA, b: hero.imageB, fitH: 1.12, top: 0.07 })
+    // الصورتين اتصغّر محتواهم للنص في الملف نفسه (×0.5)، فالديسكتوب بيتعوّض:
+    // fitH = 1.12 / 0.5 = 2.24 عشان حجم الشخص على الديسكتوب يفضل زي ما هو بالظبط
+    // (الموبايل بياخد fitH=1.12 من الشيدر نفسه — شوف uFitHM في heroGL.js)
+    gl.current = new HeroGL(canvas.current, { a: hero.imageA, b: hero.imageB, fitH: 2.24, top: 0.07 })
     if (gl.current.failed) canvas.current.parentElement.classList.add('no-gl')
     return () => gl.current?.destroy()
   }, [])

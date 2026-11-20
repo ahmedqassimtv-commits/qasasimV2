@@ -50,24 +50,19 @@ in vec2 vUv; out vec4 o;
 uniform sampler2D uA; uniform sampler2D uB; uniform sampler2D uTrail;
 uniform vec2 uRes; uniform vec2 uResA; uniform float uTime; uniform float uGrey;
 uniform float uFitH; uniform float uTop; uniform vec3 uBlob; uniform float uBlobA;
-uniform float uMobW; uniform float uMobY; // عرض الصورة على الموبايل (نسبة من عرض الشاشة) وموضعها الرأسي
+uniform float uFitHM; uniform float uTopM; // موبايل: fitH=1.12 و top=0.13 (الصورة نفسها اتصغّرت، فالعرض بمعادلة الأصل)
 ${NOISE}
-// الصورة (المقصوصة) بتتحط بارتفاع نسبةً للشاشة ومحاذية من فوق — زي الأصلي (الراس قريبة من فوق والصدر مقصوص تحت)
-// على الشاشات الطولية (موبايل): الصورة أصغر، بعرض الشاشة مع هوامش، ومتمركزة في النص فوق
+// الصورة (المقصوصة) بتتحط بارتفاع نسبةً للشاشة ومحاذية من فوق — زي الأصلي
+// (الصورة نفسها اتصغّرت للنص في الملف، فالمعادلة هنا هي معادلة الأصل؛
+// على الموبايل fitH=1.12 و top=0.13 عشان الشخص يتوازن في النص فوق،
+// وعلى الديسكتوب fitH بيتعوّض ×2 عشان حجم الشخص يفضل زي ما هو)
 vec4 place(sampler2D t, vec2 px){
-  float s;
-  vec2 size;
-  vec2 origin;
-  if (uRes.x < uRes.y) {
-    s = (uRes.x*uMobW)/uResA.x;
-    size = uResA*s;
-    origin = vec2((uRes.x-size.x)*.5, (uRes.y-size.y)*uMobY);
-  } else {
-    s = (uRes.y*uFitH)/uResA.y;
-    s = max(s, (uRes.x*0.62)/uResA.x);
-    size = uResA*s;
-    origin = vec2((uRes.x-size.x)*.5, uRes.y*uTop);
-  }
+  float fitH = uRes.x < uRes.y ? uFitHM : uFitH;
+  float top = uRes.x < uRes.y ? uTopM : uTop;
+  float s = (uRes.y*fitH)/uResA.y;
+  s = max(s, (uRes.x*0.62)/uResA.x);
+  vec2 size = uResA*s;
+  vec2 origin = vec2((uRes.x-size.x)*.5, uRes.y*top);
   vec2 uv = (px-origin)/size;
   if(uv.x<0.||uv.x>1.||uv.y<0.||uv.y>1.) return vec4(0.);
   return texture(t, uv);
@@ -265,7 +260,7 @@ export default class HeroGL {
     gl.uniform2f(d.uRes, this.w, this.h)
     gl.uniform2f(d.uResA, ...this.resA)
     gl.uniform1f(d.uFitH, this.fitH); gl.uniform1f(d.uTop, this.top)
-    gl.uniform1f(d.uMobW, 0.88); gl.uniform1f(d.uMobY, 0.30)
+    gl.uniform1f(d.uFitHM, 1.12); gl.uniform1f(d.uTopM, 0.13)
     gl.uniform3f(d.uBlob, 0.84, 0.845, 0.82); gl.uniform1f(d.uBlobA, 0.55)
     gl.uniform1f(d.uTime, this.time)
     gl.uniform1f(d.uGrey, this.grey)
