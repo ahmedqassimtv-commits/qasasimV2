@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { hall, channelVideosUrl } from '../data/content'
-import { Btn } from './Bits'
+import { Btn, LogoMark } from './Bits'
 
 // إطار البطاقة بالـ "notch": الحافة السفلية ترتفع بمنحنى ويقعد العنوان تحتها (زي كروت الخوذ)
 function notchPath(w, h, r = 12, notchW = 0.45, notchH = 30) {
@@ -31,8 +31,8 @@ function Card({ it }) {
       <svg className="hc__frame" ref={svg} preserveAspectRatio="none"><path transform="translate(.5 .5)" /></svg>
       <div className="hc__img">
         <img src={it.img} alt={it.name} loading="lazy" />
-        <img src={it.alt} alt="" loading="lazy" className="hc__alt" />
       </div>
+      <img src={it.alt} alt="" loading="lazy" className="hc__full" />
       <div className="hc__label"><b>{it.name}</b><span>{it.year}</span></div>
     </div>
   )
@@ -42,10 +42,6 @@ export default function Hall() {
   const root = useRef(null)
 
   useGSAP(() => {
-    gsap.from('.hall__title > span', {
-      yPercent: 110, stagger: 0.1, duration: 1.1, ease: 'expo.out',
-      scrollTrigger: { trigger: '.hall__head', start: 'top 75%' },
-    })
     gsap.utils.toArray('.hall__feat').forEach((el, i) => {
       gsap.fromTo(el, { y: [160, 40, 260][i] }, {
         y: [-160, -40, -260][i], rotate: [-4, 2, 5][i], ease: 'none',
@@ -65,9 +61,11 @@ export default function Hall() {
   return (
     <section className="hall" id="episodes" ref={root} data-nav="dark">
       <header className="hall__head">
-        <p className="eyebrow eyebrow--lime">{hall.eyebrow}</p>
-        <h3 className="hall__title"><span className="serif">{hall.title[0]}</span><span>{hall.title[1]}</span></h3>
-        <p className="hall__intro">{hall.intro}</p>
+        <div>
+          <p className="eyebrow eyebrow--lime" data-hl>{hall.eyebrow}</p>
+          <h3 className="hall__title" data-hl><span>{hall.title[0]}</span><span className="serif">{hall.title[1]}</span></h3>
+        </div>
+        <p className="hall__intro" data-hl>{hall.intro}</p>
       </header>
       <div className="hall__feats">
         {hall.feats.map((f, i) => <div className="hall__feat" key={i}><img src={f} alt="" /></div>)}
@@ -76,7 +74,8 @@ export default function Hall() {
         {cols.map((c, i) => <div className="hall__col" key={i}>{c.map((it) => <Card key={it.name} it={it} />)}</div>)}
       </div>
       <div className="hall__more">
-        <p>شوف حلقات أكتر ولقطات من الاستوديو</p>
+        <LogoMark className="hall__more-logo" />
+        <p data-hl>شوف حلقات أكتر ولقطات من الاستوديو</p>
         <Btn href={channelVideosUrl} target="_blank" rel="noreferrer">كل الأعمال</Btn>
       </div>
     </section>

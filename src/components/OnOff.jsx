@@ -4,22 +4,39 @@ import { useGSAP } from '@gsap/react'
 import { onoff } from '../data/content'
 import { ArrowIcon } from './Bits'
 
+const COLS = 14, ROWS = 6
+
 /**
- * "على الهواء / خلف الكواليس": عنوانين في النص (سيريف فوق + عريض تحت)،
- * عند الـ hover تظهر كلمة بخط يد ليموني فوق العنوان، والصورة الجانبية تدخل أكتر للشاشة.
+ * «على الهواء / خلف الكواليس» — زي ON TRACK / OFF TRACK:
+ * - صورتين مقصوصتين على الحافتين «وش في وش»: بيدخلوا من برّه الشاشة مع التمرير ويقرّبوا من بعض،
+ *   والصورة اللي ناحية العمود اللي عليه الماوس بتقرّب أكتر.
+ * - كلمة بخط اليد الليموني بتترسم فوق العنوان مع الـ hover.
+ * - في الآخر انتقال بمربعات (pixel) للقسم الداكن اللي بعده.
  */
 export default function OnOff() {
   const root = useRef(null)
   const [hover, setHover] = useState(-1)
 
   useGSAP(() => {
-    const tl = gsap.timeline({ scrollTrigger: { trigger: root.current, start: 'top 65%' } })
-    tl.from('.oo__side', { xPercent: (i) => (i ? -100 : 100), duration: 1.4, ease: 'expo.out' })
-      .from('.oo__h > span', { yPercent: 110, stagger: 0.08, duration: 1, ease: 'expo.out' }, 0.15)
-      .from('.oo__col p, .oo__col .sqbtn', { y: 20, autoAlpha: 0, stagger: 0.06, duration: 0.8, ease: 'power3.out' }, 0.4)
-    gsap.to('.oo__side img', {
-      yPercent: -8, ease: 'none',
-      scrollTrigger: { trigger: root.current, start: 'top bottom', end: 'bottom top', scrub: true },
+    // الصورتين بيدخلوا من برّه ويقربوا من بعض مع التمرير (scrub)
+    gsap.utils.toArray('.oo__side').forEach((el, i) => {
+      const out = i ? -1 : 1 // الأولى يمين، التانية شمال
+      gsap.fromTo(el, { xPercent: out * 75 }, {
+        xPercent: 0, ease: 'none',
+        scrollTrigger: { trigger: root.current, start: 'top 85%', end: 'top 10%', scrub: 0.8 },
+      })
+      gsap.fromTo(el.querySelector('img'), { yPercent: 6 }, {
+        yPercent: -4, ease: 'none',
+        scrollTrigger: { trigger: root.current, start: 'top bottom', end: 'bottom top', scrub: true },
+      })
+    })
+
+    // انتقال المربعات في آخر القسم: المربعات بتتملى من تحت لفوق بترتيب عشوائي
+    const cells = gsap.utils.toArray('.oo__px i')
+    gsap.fromTo(cells, { scale: 0 }, {
+      scale: 1, ease: 'none',
+      stagger: { each: 0.02, from: 'end', grid: [ROWS, COLS], amount: 0.8, ease: 'power1.in' },
+      scrollTrigger: { trigger: '.oo__px', start: 'top 95%', end: 'bottom 70%', scrub: 0.5 },
     })
   }, { scope: root })
 
@@ -27,22 +44,25 @@ export default function OnOff() {
     <section className={`oo topo topo--light ${hover > -1 ? 'has-hover' : ''}`} ref={root} data-nav="light">
       {onoff.map((o, i) => (
         <div key={o.id} className={`oo__side oo__side--${i} ${hover === i ? 'is-on' : ''}`}>
-          <img src={o.side} alt="" />
+          <img src={o.side} alt="" style={o.flip ? { scale: '-1 1' } : undefined} />
         </div>
       ))}
       <div className="oo__cols">
         {onoff.map((o, i) => (
           <a key={o.id} id={o.id} href={`#${o.id}`} className={`oo__col ${hover === i ? 'is-on' : ''}`}
             onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(-1)}>
-            <h3 className="oo__h">
+            <h3 className="oo__h" data-hl>
               <span className="oo__top">{o.top}</span>
               <span className="oo__bottom">{o.bottom}</span>
             </h3>
             <span className="oo__script" aria-hidden>{o.script}</span>
-            <p>{o.text}</p>
+            <p data-hl>{o.text}</p>
             <span className="sqbtn"><ArrowIcon /></span>
           </a>
         ))}
+      </div>
+      <div className="oo__px" aria-hidden>
+        {Array.from({ length: COLS * ROWS }, (_, i) => <i key={i} />)}
       </div>
     </section>
   )

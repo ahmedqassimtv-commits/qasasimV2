@@ -10,6 +10,7 @@ const storyCairo = 'https://images.unsplash.com/photo-1572252009286-268acec5ca0a
 const storyAlex = 'https://images.unsplash.com/photo-1539768942893-daf53e448371?auto=format&fit=crop&w=1400&q=80'
 const storyLuxor = 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?auto=format&fit=crop&w=1400&q=80'
 const channelVideos = 'https://www.youtube.com/@AhmedQassimTV/videos'
+const platform = 'https://ahmedqassimtv-commits.github.io/qassimz-platform'
 
 export const site = {
   first: 'AHMED',
@@ -37,6 +38,7 @@ export const nav = [
   { label: 'على الهواء', href: '#on-air' },
   { label: 'خلف الكواليس', href: '#backstage' },
   { label: 'الفيديوهات', href: '#videos' },
+  { label: 'المقالات', href: '#articles' },
   { label: 'الأرشيف', href: '#episodes' },
 ]
 
@@ -61,15 +63,17 @@ export const track = {
 }
 
 export const onoff = [
+  // side: صورة مقصوصة (PNG/WebP شفاف) — الصورتين بيبصّوا لبعض «وش في وش»
+  // مؤقتاً صورتين الهيرو لحد ما توصل الصور الجديدة (بروفايل جانبي لكل ناحية)
   {
     id: 'on-air', top: 'على', bottom: 'الهواء', script: 'على',
     text: 'أحدث الفيديوهات، أرقام القناة، وصور من الاستوديو.',
-    side: storyCairo,
+    side: asset('images/hero-2.webp'), flip: false,
   },
   {
     id: 'backstage', top: 'خلف', bottom: 'الكواليس', script: 'خلف',
     text: 'تصوير، حملات، وكل اللي بيحصل قبل وبعد الكاميرا.',
-    side: storyLuxor,
+    side: asset('images/hero-1.webp'), flip: false,
   },
 ]
 
@@ -110,3 +114,50 @@ export const posts = [
 ]
 
 export const channelVideosUrl = channelVideos
+
+// ===== المقالات: محتوى حقيقي من منصة قاسمز (مقال + مراجعات + حكايات) =====
+// img: null ← كارت نصي من غير صورة
+export const articles = {
+  eyebrow: 'من منصة قاسمز',
+  title: ['أحدث', 'المقالات'],
+  intro: 'مقالات، مراجعات سينمائية، وحكايات من أرشيف مصر — مكتوبة على مهل.',
+  all: platform + '/articles',
+  items: [
+    {
+      kind: 'مقال', category: 'الصورة والسينما', date: '20 فبراير 2025',
+      title: 'حين تصبح اللقطة حكاية',
+      excerpt: 'تأملات بسيطة في التفاصيل التي تجعل الصورة قادرة على أن تحكي أكثر مما نرى.',
+      img: null, href: platform + '/articles/hin-tasbih-allqta-hikaya',
+    },
+    {
+      kind: 'مراجعة', category: 'فيلم · 9/10', date: '5 فبراير 2025',
+      title: 'الوصول',
+      excerpt: 'عمل خيال علمي إنساني يثق في صمت الصورة بقدر ثقته في الحوار.',
+      img: 'https://i.ytimg.com/vi/tFMo3UJ4B4g/maxresdefault.jpg', href: platform + '/verdict',
+    },
+    {
+      kind: 'مراجعة', category: 'فيلم · 8.5/10', date: '18 يناير 2025',
+      title: 'كثيب: الجزء الثاني',
+      excerpt: 'ملحمة ضخمة التفاصيل، تتألق حين تترك للصورة والموسيقى مساحة للتنفس.',
+      img: 'https://i.ytimg.com/vi/Way9Dexny3w/maxresdefault.jpg', href: platform + '/verdict',
+    },
+    {
+      kind: 'مراجعة', category: 'مسلسل · 8/10', date: '30 ديسمبر 2024',
+      title: 'ساموراي العين الزرقاء',
+      excerpt: 'أسلوب بصري جريء وشخصية رئيسية تحمل حكاية تتجاوز حدود الانتقام.',
+      img: 'https://i.ytimg.com/vi/nJ1yQn17lbE/maxresdefault.jpg', href: platform + '/verdict',
+    },
+    {
+      kind: 'حكاية', category: 'القاهرة — وسط البلد · 1932', date: 'ثلاثينيات القرن العشرين',
+      title: 'صباحٌ هادئ قبل ازدحام الترام',
+      excerpt: 'لقطة توثّق سكون الشوارع مع أول خيوط الفجر، حيث كانت الواجهات الحجرية تحفظ إيقاع المدينة البطيء.',
+      img: storyCairo, href: platform + '/stories',
+    },
+    {
+      kind: 'حكاية', category: 'الإسكندرية — الكورنيش · 1954', date: 'خمسينيات القرن العشرين',
+      title: 'ذاكرة البحر والضباب الشتوي',
+      excerpt: 'عندما يلتقي موج المتوسط مع أرصفة الميناء العتيقة في صباح شتوي غائم.',
+      img: storyAlex, href: platform + '/stories',
+    },
+  ],
+}

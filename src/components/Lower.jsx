@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
-import { videos, posts, socials, nav, site } from '../data/content'
+import { videos, posts, socials, nav, site, asset } from '../data/content'
+import { marquee } from '../lib/marquee'
 import { scroll } from '../hooks/useLenis'
 import { Btn, LogoMark, NameLockup, Roll, PlayIcon } from './Bits'
 
@@ -24,7 +25,6 @@ export function Videos() {
           scrollTrigger: { trigger: '.vd__fan', start: 'top 95%', end: 'center 45%', scrub: 1 },
         })
     })
-    gsap.from('.vd__title > span', { yPercent: 110, stagger: 0.1, duration: 1, ease: 'expo.out', scrollTrigger: { trigger: root.current, start: 'top 70%' } })
   }, { scope: root })
 
   useEffect(() => {
@@ -41,9 +41,9 @@ export function Videos() {
 
   return (
     <section className="vd topo topo--dark" id="videos" ref={root} data-nav="dark">
-      <p className="eyebrow eyebrow--lime">{videos.eyebrow}</p>
-      <h3 className="vd__title"><span>{videos.title[0]}</span><span className="serif">{videos.title[1]}</span></h3>
-      <p className="vd__text">{videos.text}</p>
+      <p className="eyebrow eyebrow--lime" data-hl>{videos.eyebrow}</p>
+      <h3 className="vd__title" data-hl><span>{videos.title[0]}</span><span className="serif">{videos.title[1]}</span></h3>
+      <p className="vd__text" data-hl>{videos.text}</p>
       <Btn href={`${site.youtube}?sub_confirmation=1`} icon={<PlayIcon />} target="_blank" rel="noreferrer">اشترك في القناة</Btn>
       <div className="vd__fan">
         {videos.items.map((v, i) => (
@@ -83,11 +83,10 @@ export function Socials() {
           scrollTrigger: { trigger: '.so__fan', start: 'top 90%', end: 'center 50%', scrub: 1 },
         })
     })
-    gsap.from('.so__title > span', { yPercent: 110, stagger: 0.1, duration: 1, ease: 'expo.out', scrollTrigger: { trigger: root.current, start: 'top 70%' } })
   }, { scope: root })
   return (
     <section className="so topo topo--light" ref={root} data-nav="light">
-      <h3 className="so__title"><span>إيه الجديد</span><span className="serif">على السوشيال</span></h3>
+      <h3 className="so__title" data-hl><span>إيه الجديد</span><span className="serif">على السوشيال</span></h3>
       <div className="so__fan">
         {posts.map((p, i) => (
           <a href={p.href} className="so__card" key={i} style={{ zIndex: 10 - Math.abs(i - 3) }} target="_blank" rel="noreferrer">
@@ -95,48 +94,73 @@ export function Socials() {
           </a>
         ))}
       </div>
-      <p className="so__follow serif">تابع أحمد على السوشيال</p>
+      <p className="so__follow serif" data-hl>تابع أحمد على السوشيال</p>
       <div className="so__links">{socials.map((s) => <Btn key={s.label} href={s.href} theme="outline">{s.label}</Btn>)}</div>
     </section>
   )
 }
 
-/* ================= الفوتر ================= */
+/* ================= الفوتر: لوحة داكنة جوه إطار ليموني (زي الأصلي) ================= */
+const SIG = 'M58 372C150 300 300 176 468 108C566 70 600 108 520 152C420 206 246 252 122 266C58 273 46 236 112 222C204 202 262 214 250 246C238 282 222 334 230 352C238 300 268 242 300 234C322 229 310 302 316 330C330 282 352 252 374 252C394 252 380 312 394 322C410 300 424 272 446 262C478 250 524 248 596 230'
+
 export function Footer() {
   const root = useRef(null)
   useGSAP(() => {
-    gsap.from('.ft__tag > span', {
-      yPercent: 115, stagger: 0.1, duration: 1.2, ease: 'expo.out',
-      scrollTrigger: { trigger: '.ft__tag', start: 'top 92%' },
+    // التوقيع بيترسم لما الفوتر يظهر
+    gsap.fromTo('.ft__sig path', { strokeDashoffset: 1 }, {
+      strokeDashoffset: 0, duration: 1.6, ease: 'power2.inOut',
+      scrollTrigger: { trigger: '.ft__tag', start: 'top 85%' },
     })
-    gsap.from('.ft__mark .lm-p', {
-      scale: 0, rotate: () => gsap.utils.random(-50, 50), transformOrigin: '50% 50%', stagger: 0.1, duration: 0.6, ease: 'back.out(2.2)',
-      scrollTrigger: { trigger: '.ft__mark', start: 'top 90%' },
+    // الصورة بتطلع من تحت
+    gsap.fromTo('.ft__photo', { yPercent: 40 }, {
+      yPercent: 0, ease: 'none',
+      scrollTrigger: { trigger: root.current, start: 'top bottom', end: 'bottom bottom', scrub: true },
     })
-    gsap.utils.toArray('.ft__blobs circle').forEach((c, i) => gsap.to(c, {
-      attr: { cx: `+=${gsap.utils.random(-70, 70)}`, cy: `+=${gsap.utils.random(-40, 40)}` },
-      duration: gsap.utils.random(3, 6), repeat: -1, yoyo: true, ease: 'sine.inOut', delay: i * 0.2,
-    }))
+    // اللوحة بتكبر شوية وهي داخلة (إحساس الإطار بيقفل عليها)
+    gsap.fromTo('.ft__panel', { scale: 0.94 }, {
+      scale: 1, ease: 'none',
+      scrollTrigger: { trigger: root.current, start: 'top bottom', end: 'top 20%', scrub: true },
+    })
+    const stop = marquee(root.current.querySelector('.ft__mq-row'), { speed: 50, dir: 1 })
+    return () => stop()
   }, { scope: root })
+
+  const chips = [...socials.map((s) => s.label), 'قاسمز', 'QASSIMZ', 'يوتيوب', 'مراجعات', 'حكايات']
   return (
     <footer className="ft" ref={root} data-nav="dark">
-      <svg className="ft__blobs" viewBox="0 0 800 400" aria-hidden>
-        <defs><filter id="goo"><feGaussianBlur in="SourceGraphic" stdDeviation="18" /><feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 28 -12" /></filter></defs>
-        <g filter="url(#goo)" fill="#d2ff00" opacity=".9">
-          <circle cx="150" cy="200" r="70" /><circle cx="260" cy="170" r="55" /><circle cx="420" cy="230" r="90" /><circle cx="560" cy="180" r="60" /><circle cx="660" cy="240" r="50" />
-        </g>
-      </svg>
-      <div className="ft__top">
-        <div className="ft__col"><p className="eyebrow">الصفحات</p>{nav.map((n) => <a key={n.label} href={n.href} className="tlink" data-roll><Roll>{n.label}</Roll></a>)}<a href={site.youtube} className="tlink" data-roll target="_blank" rel="noreferrer"><Roll>يوتيوب</Roll></a></div>
-        <div className="ft__col"><p className="eyebrow">تابعنا</p>{socials.map((s) => <a key={s.label} href={s.href} className="tlink" data-roll><Roll>{s.label}</Roll></a>)}</div>
-        <div className="ft__col"><p className="eyebrow">النشرة</p><Btn href={`${site.youtube}?sub_confirmation=1`} target="_blank" rel="noreferrer">اشترك</Btn></div>
+      <div className="ft__panel topo topo--dark">
+        <svg className="ft__tab" viewBox="0 0 320 44" preserveAspectRatio="none" aria-hidden>
+          <path d="M0 44C34 44 40 0 80 0H240C280 0 286 44 320 44Z" />
+        </svg>
+
+        <div className="ft__head">
+          <svg className="ft__sig" viewBox="0 0 640 420" fill="none" aria-hidden><path d={SIG} pathLength="1" strokeDasharray="1" /></svg>
+          <h2 className="ft__tag" data-hl><span>{site.tagline[0]}</span> <span className="serif">{site.tagline[1]}</span></h2>
+        </div>
+
+        <div className="ft__cols">
+          <div className="ft__col">
+            <p className="eyebrow" data-hl>الصفحات</p>
+            {nav.map((n) => <a key={n.label} href={n.href} className="tlink" data-roll><Roll>{n.label}</Roll></a>)}
+            <a href={site.youtube} className="tlink ft__yt" data-roll target="_blank" rel="noreferrer"><Roll>يوتيوب</Roll></a>
+          </div>
+          <img className="ft__photo" src={asset('images/hero-2.webp')} alt="" loading="lazy" />
+          <div className="ft__col">
+            <p className="eyebrow" data-hl>تابع على</p>
+            {socials.map((s) => <a key={s.label} href={s.href} className="tlink" data-roll target="_blank" rel="noreferrer"><Roll>{s.label}</Roll></a>)}
+            <a href={`${site.youtube}?sub_confirmation=1`} className="tlink ft__yt" data-roll target="_blank" rel="noreferrer"><Roll>اشترك</Roll></a>
+          </div>
+        </div>
+
+        <div className="ft__mq" dir="ltr" aria-hidden>
+          <div className="ft__mq-row">{[...chips, ...chips].map((c, i) => <span key={i}>{c}<LogoMark className="ft__mq-mark" /></span>)}</div>
+        </div>
       </div>
-      <LogoMark className="ft__mark" />
-      <h2 className="ft__tag"><span className="serif">{site.tagline[0]}</span><span>{site.tagline[1]}</span></h2>
-      <div className="ft__bottom">
-        <NameLockup withMark={false} />
-        <a href={`mailto:${site.email}`} className="tlink" data-roll><Roll>للتعاون والإعلانات</Roll></a>
-        <span className="ft__legal">© {new Date().getFullYear()} {site.nameAr} · <a href="#">الخصوصية</a> · <a href="#">الشروط</a></span>
+
+      <div className="ft__bar">
+        <span>© {new Date().getFullYear()} {site.nameAr} — كل الحقوق محفوظة</span>
+        <Btn href={`mailto:${site.email}`} theme="dark" className="ft__mail">للتعاون والإعلانات</Btn>
+        <span className="ft__legal"><NameLockup withMark={false} /></span>
       </div>
     </footer>
   )

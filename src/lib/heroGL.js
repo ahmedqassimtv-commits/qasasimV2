@@ -49,20 +49,15 @@ precision highp float;
 in vec2 vUv; out vec4 o;
 uniform sampler2D uA; uniform sampler2D uB; uniform sampler2D uTrail;
 uniform vec2 uRes; uniform vec2 uResA; uniform float uTime; uniform float uGrey;
-uniform float uFitH; uniform float uTop; uniform vec3 uBlob; uniform float uBlobA;
-uniform float uFitHM; uniform float uTopM; // موبايل: fitH=1.12 و top=0.13 (الصورة نفسها اتصغّرت، فالعرض بمعادلة الأصل)
+uniform float uFit; uniform float uFitM; uniform vec3 uBlob; uniform float uBlobA; uniform float uDark;
 ${NOISE}
-// الصورة (المقصوصة) بتتحط بارتفاع نسبةً للشاشة ومحاذية من فوق — زي الأصلي
-// (الصورة نفسها اتصغّرت للنص في الملف، فالمعادلة هنا هي معادلة الأصل؛
-// على الموبايل fitH=1.12 و top=0.13 عشان الشخص يتوازن في النص فوق،
-// وعلى الديسكتوب fitH بيتعوّض ×2 عشان حجم الشخص يفضل زي ما هو)
+// الشخص بيتحط بارتفاع = نسبة من الشاشة، ومحاذي لتحت (الصدر بيتقص عند حافة الشاشة زي الأصلي)
+// ديسكتوب uFit — موبايل (الشاشة بالطول) uFitM
 vec4 place(sampler2D t, vec2 px){
-  float fitH = uRes.x < uRes.y ? uFitHM : uFitH;
-  float top = uRes.x < uRes.y ? uTopM : uTop;
-  float s = (uRes.y*fitH)/uResA.y;
-  s = max(s, (uRes.x*0.62)/uResA.x);
+  float fit = uRes.x < uRes.y ? uFitM : uFit;
+  float s = (uRes.y*fit)/uResA.y;
   vec2 size = uResA*s;
-  vec2 origin = vec2((uRes.x-size.x)*.5, uRes.y*top);
+  vec2 origin = vec2((uRes.x-size.x)*.5, uRes.y-size.y);
   vec2 uv = (px-origin)/size;
   if(uv.x<0.||uv.x>1.||uv.y<0.||uv.y>1.) return vec4(0.);
   return texture(t, uv);
@@ -95,7 +90,8 @@ void main(){
   sh = sh/10.*.16;
   c += vec4(vec3(.157,.172,.125)*sh, sh)*(1.-c.a);
   float l = dot(c.rgb, vec3(.299,.587,.114));
-  c.rgb = mix(c.rgb, vec3(l)*vec3(.98,1.,.95), uGrey);
+  c.rgb = mix(c.rgb, vec3(l)*vec3(.98,1.,.95)*c.a, uGrey);
+  c.rgb = mix(c.rgb, c.rgb*vec3(.52,.56,.47), uDark);   // الكارت بيغمق زيتوني مع التوقيع
   o = c;
 }`
 
@@ -121,13 +117,14 @@ function loadImage(src) {
 }
 
 export default class HeroGL {
-  constructor(canvas, { a, b, radius = 0.14, fitH = 1.06, top = 0.08, onReady } = {}) {
+  constructor(canvas, { a, b, radius = 0.14, fit = 0.84, fitM = 0.6, onReady } = {}) {
     this.canvas = canvas
     this.gl = canvas.getContext('webgl2', { antialias: false, alpha: true, premultipliedAlpha: true })
     if (!this.gl) { this.failed = true; return }
     this.radius = radius
-    this.fitH = fitH; this.top = top
-    this.ghost = { on: true, t: 0, idle: 0 }
+    this.fit = fit; this.fitM = fitM; this.dark = 0
+    this.touch = window.matchMedia('(pointer: coarse)').matches
+    this.ghost = { on: true, t: 0, idle: 3, boost: 0 }
     this.grey = 0
     this.mouse = { x: .5, y: .5, px: .5, py: .5, tx: .5, ty: .5, in: false, speed: 0 }
     this.time = 0
@@ -139,8 +136,13 @@ export default class HeroGL {
       this.ready = true; onReady && onReady()
     })
     this.onMove = this.onMove.bind(this)
+    this.onTouch = this.onTouch.bind(this)
+    this.onTouchEnd = this.onTouchEnd.bind(this)
     this.loop = this.loop.bind(this)
     window.addEventListener('pointermove', this.onMove, { passive: true })
+    window.addEventListener('touchstart', this.onTouch, { passive: true })
+    window.addEventListener('touchmove', this.onTouch, { passive: true })
+    window.addEventListener('touchend', this.onTouchEnd, { passive: true })
     this.ro = new ResizeObserver(() => this.resize()); this.ro.observe(canvas)
     this.resize()
     this.raf = requestAnimationFrame(this.loop)
@@ -196,17 +198,27 @@ export default class HeroGL {
     this.ping = this.fbo(tw, th); this.pong = this.fbo(tw, th)
   }
 
-  onMove(e) {
-    // على اللمس مفيش ماوس — الصورة التانية (نظارة/كاب) متظهرش خالص، الصورة الأساسية ثابتة
-    if (e.pointerType === 'touch') { this.touch = true; return }
-    this.touch = false
+  point(cx, cy) {
     const r = this.canvas.getBoundingClientRect()
-    const x = (e.clientX - r.left) / r.width, y = 1 - (e.clientY - r.top) / r.height
+    const x = (cx - r.left) / r.width, y = 1 - (cy - r.top) / r.height
     const inside = x >= 0 && x <= 1 && y >= 0 && y <= 1
     if (inside && !this.mouse.in) { this.mouse.x = this.mouse.px = x; this.mouse.y = this.mouse.py = y }
     this.mouse.in = inside
     if (inside) { this.ghost.idle = 0; this.mouse.tx = x; this.mouse.ty = y }
   }
+
+  onMove(e) { if (e.pointerType !== 'touch') this.point(e.clientX, e.clientY) }
+  onTouch(e) { const t = e.touches[0]; if (t) this.point(t.clientX, t.clientY) }
+  onTouchEnd() { this.mouse.in = false }
+
+  // مركز الوش (لحركة المؤشر الوهمي) — محسوب من مكان الصورة على الشاشة
+  face() {
+    const fit = this.w < this.h ? this.fitM : this.fit
+    return { x: 0.5, y: fit * 0.56, rx: Math.min(0.2, (fit * this.h * 0.32) / this.w), ry: fit * 0.22 }
+  }
+
+  // دفعة حركة قوية (بتتنده بعد شاشة التحميل)
+  intro() { this.ghost.idle = 10; this.ghost.boost = 1.6; this.ghost.t = 0 }
 
   loop(now) {
     this.raf = requestAnimationFrame(this.loop)
@@ -218,12 +230,14 @@ export default class HeroGL {
     // مؤشر وهمي: بيتحرك لوحده على الوش في البداية ولما الماوس يقف — ديسكتوب بس، مش على اللمس
     const gh = this.ghost
     gh.idle += dt
-    const useGhost = gh.on && gh.idle > 2.2 && !this.touch
+    gh.boost = Math.max(0, gh.boost - dt)
+    const useGhost = gh.on && gh.idle > (this.touch ? 1.2 : 2.2)
     if (useGhost) {
       gh.t += dt
-      const k = gh.t * 0.55
-      m.tx = 0.5 + Math.sin(k * 1.3) * 0.17 + Math.sin(k * 2.9) * 0.05
-      m.ty = 0.58 + Math.sin(k * 1.9 + 1.2) * 0.16 + Math.cos(k * 3.7) * 0.04
+      const k = gh.t * (0.55 + gh.boost * 0.5)
+      const f = this.face()
+      m.tx = f.x + Math.sin(k * 1.3) * f.rx + Math.sin(k * 2.9) * f.rx * 0.3
+      m.ty = f.y + Math.sin(k * 1.9 + 1.2) * f.ry + Math.cos(k * 3.7) * f.ry * 0.25
       if (!m.ghostIn) { m.x = m.px = m.tx; m.y = m.py = m.ty; m.ghostIn = true }
     } else m.ghostIn = false
     const active = m.in || useGhost
@@ -241,7 +255,7 @@ export default class HeroGL {
     gl.uniform1i(u.uPrev, 0)
     gl.uniform2f(u.uA, m.px, m.py); gl.uniform2f(u.uB, m.x, m.y)
     gl.uniform1f(u.uR, this.radius * (0.75 + m.speed * 0.6))
-    gl.uniform1f(u.uStrength, active ? (useGhost ? 0.16 : 0.22) + m.speed * 0.6 : 0)
+    gl.uniform1f(u.uStrength, active ? (useGhost ? 0.16 + gh.boost * 0.12 : 0.22) + m.speed * 0.6 : 0)
     gl.uniform1f(u.uAspect, this.w / this.h)
     gl.uniform1f(u.uTime, this.time)
     gl.uniform1f(u.uDecay, 0.988)
@@ -259,8 +273,7 @@ export default class HeroGL {
     gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, this.ping.t); gl.uniform1i(d.uTrail, 2)
     gl.uniform2f(d.uRes, this.w, this.h)
     gl.uniform2f(d.uResA, ...this.resA)
-    gl.uniform1f(d.uFitH, this.fitH); gl.uniform1f(d.uTop, this.top)
-    gl.uniform1f(d.uFitHM, 1.12); gl.uniform1f(d.uTopM, 0.13)
+    gl.uniform1f(d.uFit, this.fit); gl.uniform1f(d.uFitM, this.fitM); gl.uniform1f(d.uDark, this.dark)
     gl.uniform3f(d.uBlob, 0.84, 0.845, 0.82); gl.uniform1f(d.uBlobA, 0.55)
     gl.uniform1f(d.uTime, this.time)
     gl.uniform1f(d.uGrey, this.grey)
@@ -270,6 +283,9 @@ export default class HeroGL {
   destroy() {
     cancelAnimationFrame(this.raf)
     window.removeEventListener('pointermove', this.onMove)
+    window.removeEventListener('touchstart', this.onTouch)
+    window.removeEventListener('touchmove', this.onTouch)
+    window.removeEventListener('touchend', this.onTouchEnd)
     this.ro && this.ro.disconnect()
     this.ready = false
   }

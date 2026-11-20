@@ -8,6 +8,12 @@ import { scroll } from '../hooks/useLenis'
 
 const menuImgs = track.items.filter((i) => i.src).slice(0, 6)
 
+// ألوان الشريط لكل نوع خلفية
+const THEMES = {
+  dark: { '--nf': '#f4f4ed', '--nm': '#d2ff00', '--hb': '#f4f4ed', '--hbd': 'rgba(40,44,32,0)' },
+  light: { '--nf': '#282c20', '--nm': '#282c20', '--hb': 'rgba(244,244,237,0)', '--hbd': 'rgba(40,44,32,1)' },
+}
+
 export default function Nav({ ready }) {
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState(0)
@@ -21,7 +27,7 @@ export default function Nav({ ready }) {
       .fromTo('.menu__col', { yPercent: (i) => (i ? 40 : -40), autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: 1.1, ease: 'expo.out' }, 0.35)
       .fromTo('.menu__link > *', { yPercent: 115 }, { yPercent: 0, duration: 0.9, stagger: 0.07, ease: 'expo.out' }, 0.45)
       .fromTo('.menu__foot > *', { y: 20, autoAlpha: 0 }, { y: 0, autoAlpha: 1, stagger: 0.05, duration: 0.6, ease: 'power3.out' }, 0.7)
-      .fromTo('.menu__scribble path', { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.8, ease: 'power2.inOut' }, 0.9)
+      .fromTo('.menu__strike', { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: 'power3.inOut' }, 0.9)
 
     // الصور في القائمة تنزلق ببطء بلا توقف (عمود لفوق وعمود لتحت)
     gsap.utils.toArray('.menu__track').forEach((t, i) => {
@@ -36,15 +42,20 @@ export default function Nav({ ready }) {
     root.current.classList.toggle('is-open', open)
   }, [open, ready])
 
-  // لون الشريط يتبدّل حسب لون القسم اللي تحته (data-nav="dark|light")
+  // لون الاسم والأزرار بيتغير تدريجياً مع التمرير حسب لون القسم اللي تحته
+  // (كل [data-nav] بيعمل انتقال scrub من لون القسم اللي قبله للونه)
   useEffect(() => {
     if (!ready) return
-    const triggers = gsap.utils.toArray('[data-nav]').map((sec) =>
-      ScrollTrigger.create({
-        trigger: sec, start: 'top 40px', end: 'bottom 40px',
-        onToggle: (s) => s.isActive && root.current.setAttribute('data-theme', sec.dataset.nav),
-      })
-    )
+    const marks = gsap.utils.toArray('[data-nav]')
+      .sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top)
+    gsap.set(root.current, THEMES[marks[0]?.dataset.nav || 'light'])
+    const triggers = marks.slice(1).map((sec, i) => {
+      const from = THEMES[marks[i].dataset.nav], to = THEMES[sec.dataset.nav]
+      return gsap.fromTo(root.current, from, {
+        ...to, ease: 'none', immediateRender: false,
+        scrollTrigger: { trigger: sec, start: 'top 90px', end: 'top 10px', scrub: true },
+      }).scrollTrigger
+    })
     // يختفي مع النزول ويرجع مع الطلوع
     const hide = ScrollTrigger.create({
       start: 'top -200',
@@ -54,7 +65,7 @@ export default function Nav({ ready }) {
   }, [ready])
 
   return (
-    <div className="navw" ref={root} data-theme="light">
+    <div className="navw" ref={root}>
       <header className="nav">
         <a href="#" className="nav__brand" aria-label="الرئيسية"><NameLockup withMark={false} /></a>
         <a href="#" className="nav__mid" aria-label="قاسمز"><LogoMark /></a>
@@ -78,7 +89,6 @@ export default function Nav({ ready }) {
                     return (
                       <div className={`menu__img ${idx === active ? 'is-active' : ''}`} key={i}>
                         <img src={m.src} alt="" />
-                        <span className="menu__tint" />
                       </div>
                     )
                   })}
@@ -93,11 +103,7 @@ export default function Nav({ ready }) {
                 <a key={n.label} href={n.href} className="menu__link" data-roll
                   onMouseEnter={() => setActive(i)} onClick={() => setOpen(false)}>
                   <span><Roll>{n.label}</Roll></span>
-                  {i === 0 && (
-                    <svg className="menu__scribble" viewBox="0 0 412 26" preserveAspectRatio="none">
-                      <path d="M4 18C80 8 190 4 300 9c40 2 78 6 106 11" pathLength="1" strokeDasharray="1" />
-                    </svg>
-                  )}
+                  {i === 0 && <span className="menu__strike" />}
                 </a>
               ))}
             </nav>

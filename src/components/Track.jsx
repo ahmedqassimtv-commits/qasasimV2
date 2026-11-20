@@ -43,12 +43,12 @@ export default function Track() {
         {track.items.map((it, i) =>
           it.cap === 'QUOTE' ? (
             <blockquote className="trk__quote" key={i}>
-              <p>{q.before}<b>{q.b1}</b>{q.mid}<b>{q.b2}</b>{q.after}</p>
+              <p data-hl>{q.before}<b>{q.b1}</b>{q.mid}<b>{q.b2}</b>{q.after}</p>
               <svg viewBox="0 0 120 40" className="trk__sig"><path d="M6 30c18-4 30-22 42-22-6 10-14 18-6 20 10 2 22-18 30-16-4 6-6 12 0 12 8 0 18-8 40-10" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" /></svg>
             </blockquote>
           ) : (
             <figure className={`trk__item trk__item--${it.size} ${it.mute ? 'is-mute' : ''}`} key={i} style={{ '--y': it.y + 'vh' }}>
-              <figcaption className="eyebrow">{it.win && <b className="badge">1</b>}{it.cap}</figcaption>
+              <figcaption className="eyebrow" data-hl>{it.cap}</figcaption>
               <div className="trk__img"><img src={it.src} alt={it.cap} loading="lazy" /><span className="trk__tint" /></div>
             </figure>
           )
