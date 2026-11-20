@@ -385,6 +385,8 @@ section { position: relative; }
   .btn--nav .roll { display: none; }
   .hero { height: 210vh; }
   .hero__sig { width: 52vw; }
+  /* الصورة البديلة (من غير WebGL) متمركزة زي نسخة الـ WebGL على الموبايل */
+  .hero__fallback { object-position: 50% 30%; }
   /* سطور الماركي أصغر عشان يبان منها أكتر */
   .hero__row--serif { font-size: clamp(2.4rem, 7vw, 10rem); }
   .hero__row--bold { font-size: clamp(2.4rem, 6.8vw, 9.5rem); }
