@@ -1,5 +1,7 @@
 // ===== كل محتوى الموقع هنا — عدّل النصوص والصور فقط من هذا الملف =====
-// الصور المؤقتة من picsum تحتاج إنترنت؛ ضع صورك في public/images واكتب المسار مثل '/images/x.jpg'
+// الصور المؤقتة من picsum تحتاج إنترنت؛ ضع صورك في public/images واكتب المسار مثل asset('images/x.jpg')
+// asset(): يضيف مسار النشر (مهم على GitHub Pages لأن الموقع بيبقى تحت /qasasimv2/)
+export const asset = (path) => import.meta.env.BASE_URL + path.replace(/^\//, '')
 const ph = (seed, w = 900, h = 1100) => `https://picsum.photos/seed/qz-${seed}/${w}/${h}`
 
 export const site = {
@@ -14,8 +16,8 @@ export const site = {
 }
 
 export const hero = {
-  imageA: '/images/hero-1.webp', // الصورة الأساسية (مقصوصة بدون خلفية)
-  imageB: '/images/hero-2.webp', // بالنظارة والكاب (تنكشف مع الماوس)
+  imageA: asset('images/hero-1.webp'), // الصورة الأساسية (مقصوصة بدون خلفية)
+  imageB: asset('images/hero-2.webp'), // بالنظارة والكاب (تنكشف مع الماوس)
   next: { label: 'أحدث فيديو', title: 'قاسمز', sub: 'شاهد الآن' },
   // سطرا الـ marquee خلف الصورة بعد التمرير
   marqueeTop: 'كل حلقة بنعملها كأنها الأولى — ',

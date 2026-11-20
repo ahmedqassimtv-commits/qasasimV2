@@ -156,8 +156,15 @@ npm run preview  # يجرّب نسخة النشر محلياً
 2. Framework preset: **Vite** — Build command: `npm run build` — Output: `dist`
 3. Save and Deploy — وبعدين اربط الدومين من Custom domains
 
-### GitHub Pages
-لو الموقع هيتنشر على `username.github.io/repo-name` ضيف `base: '/repo-name/'` في `vite.config.js`.
+### GitHub Pages (متظبط ✅)
+أي push على `main` بيبني الموقع وينشره أوتوماتيك عن طريق `.github/workflows/deploy.yml`.
+الرابط: **https://ahmedqassimtv-commits.github.io/qasasimv2/**
+تقدر تتابع النشر من تبويب **Actions** في الريبو.
+
+> مسار النشر بيتظبط لوحده من اسم الريبو. لو هتضيف صور جديدة في الكود استخدم `asset('images/x.jpg')` من `content.js` بدل `/images/x.jpg` عشان تشتغل على GitHub Pages.
+
+### دومين خاص
+Settings ← Pages ← Custom domain. ساعتها غيّر `BASE_PATH` في الـ workflow لـ `/`.
 
 ---
 
