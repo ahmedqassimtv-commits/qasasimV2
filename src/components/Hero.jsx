@@ -36,7 +36,7 @@ export default function Hero() {
     window.addEventListener('preloader:out', intro, { once: true })
 
     mm.add({ desk: '(min-width: 768px)', mob: '(max-width: 767px)' }, (ctx) => {
-      const target = ctx.conditions.desk ? 0.53 : 0.82
+      const target = ctx.conditions.desk ? 0.62 : 0.86
       const g = { v: 0 }
       gsap.timeline({
         defaults: { ease: 'none' },
@@ -46,7 +46,7 @@ export default function Hero() {
         },
       })
         .to('.hero__stage', { scale: target, borderRadius: 4, backgroundColor: '#a5a7a0', duration: 0.45 }, 0)
-        .to(g, { v: 0.82, duration: 0.45, onUpdate: () => gl.current && (gl.current.grey = g.v) }, 0)
+        .to(g, { v: 0.55, duration: 0.45, onUpdate: () => gl.current && (gl.current.grey = g.v) }, 0)
         .to('.hero__ui', { autoAlpha: 0, y: -40, duration: 0.15 }, 0)
         .fromTo('.hero__back', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3 }, 0.1)
         .fromTo('.hero__marq', { autoAlpha: 0, scale: 1.15 }, { autoAlpha: 1, scale: 1, duration: 0.35 }, 0.15)
@@ -87,7 +87,7 @@ export default function Hero() {
         </div>
 
         <div className="hero__ui">
-          <a href="#episodes" className="hero__next">
+          <a href={hero.next.href} className="hero__next" target="_blank" rel="noreferrer">
             <span className="eyebrow">{hero.next.label}</span>
             <strong>{hero.next.title}</strong>
             <span className="eyebrow eyebrow--lime">{hero.next.sub}</span>

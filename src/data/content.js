@@ -1,8 +1,15 @@
 // ===== كل محتوى الموقع هنا — عدّل النصوص والصور فقط من هذا الملف =====
-// الصور المؤقتة من picsum تحتاج إنترنت؛ ضع صورك في public/images واكتب المسار مثل asset('images/x.jpg')
+// كل الروابط والصور هنا حقيقية ومتأكد منها (نوفمبر 2026):
+// - فيديو قناة @AhmedQassimTV الوحيد المنشور، والمراجعات والحكايات من موقع قاسمز.
+// - مفيش صور عشوائية (picsum) ولا أسماء شركاء وهمية.
 // asset(): يضيف مسار النشر (مهم على GitHub Pages لأن الموقع بيبقى تحت /qasasimv2/)
 export const asset = (path) => import.meta.env.BASE_URL + path.replace(/^\//, '')
-const ph = (seed, w = 900, h = 1100) => `https://picsum.photos/seed/qz-${seed}/${w}/${h}`
+
+// صور الحكايات التاريخية (Unsplash — نفس الصور المنشورة على موقع قاسمز)
+const storyCairo = 'https://images.unsplash.com/photo-1572252009286-268acec5ca0a?auto=format&fit=crop&w=1400&q=80'
+const storyAlex = 'https://images.unsplash.com/photo-1539768942893-daf53e448371?auto=format&fit=crop&w=1400&q=80'
+const storyLuxor = 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?auto=format&fit=crop&w=1400&q=80'
+const channelVideos = 'https://www.youtube.com/@AhmedQassimTV/videos'
 
 export const site = {
   first: 'AHMED',
@@ -10,15 +17,15 @@ export const site = {
   nameAr: 'أحمد قاسم',
   since: 'قاسمز منذ 2019',
   email: 'business@qassimz.com',
-  youtube: 'https://www.youtube.com/@YOUR_CHANNEL', // ← حط لينك قناتك هنا
+  youtube: 'https://www.youtube.com/@AhmedQassimTV',
   loadLabel: 'LOAD QASSIM',
   tagline: ['دايماً', 'في الملعب.'], // السطر الأخير في الفوتر
 }
 
 export const hero = {
   imageA: asset('images/hero-1.webp'), // الصورة الأساسية (مقصوصة بدون خلفية)
-  imageB: asset('images/hero-2.webp'), // بالنظارة والكاب (تنكشف مع الماوس)
-  next: { label: 'أحدث فيديو', title: 'قاسمز', sub: 'شاهد الآن' },
+  imageB: asset('images/hero-2.webp'), // بالنظارة والكاب (تنكشف مع الماوس — ديسكتوب بس)
+  next: { label: 'أحدث فيديو', title: 'قاسمز', sub: 'شاهد الآن', href: 'https://www.youtube.com/watch?v=uj4KDGhHPhw' },
   // سطرا الـ marquee خلف الصورة بعد التمرير
   marqueeTop: 'كل حلقة بنعملها كأنها الأولى — ',
   marqueeBottom: 'والحكاية لسه مكمّلة وعندنا كتير نقوله — ',
@@ -34,10 +41,9 @@ export const nav = [
 ]
 
 export const socials = [
-  { label: 'TikTok', href: '#' },
-  { label: 'Instagram', href: '#' },
-  { label: 'YouTube', href: 'https://www.youtube.com/@YOUR_CHANNEL' },
-  { label: 'X', href: '#' },
+  { label: 'YouTube', href: 'https://www.youtube.com/@AhmedQassimTV' },
+  { label: 'X', href: 'https://x.com/ahmedqassimtv' },
+  { label: 'Facebook', href: 'https://www.facebook.com/AhmedQassimTV' },
 ]
 
 // الكلمات بين [[ ]] تظهر بالخط الثاني وباللون الليموني
@@ -47,16 +53,10 @@ export const message =
 export const track = {
   quote: { before: 'مش مهم انت ', b1: 'بدأت منين', mid: '، المهم ', b2: 'هتوصل لفين', after: ' بعدها.' },
   items: [
-    { cap: 'القاهرة، 2024', src: ph('g0', 700, 860), size: 's', y: 6 },
-    { cap: 'حفل الجوائز، 2024', src: ph('g1', 800, 800), size: 's', y: 52, mute: true },
+    { cap: 'القاهرة — وسط البلد · 1932', src: storyCairo, size: 'm', y: 6 },
+    { cap: 'الإسكندرية — الكورنيش · 1954', src: storyAlex, size: 'l', y: 40 },
     { cap: 'QUOTE' },
-    { cap: 'الرياض، 2024', src: ph('g2', 1000, 900), size: 'l', y: 30 },
-    { cap: 'دبي، 2023', src: ph('g3', 600, 760), size: 's', y: 4, mute: true },
-    { cap: 'الحلقة 1، 2019', src: ph('g4', 900, 1100), size: 'm', y: 40, win: true },
-    { cap: 'جدة، 2024', src: ph('g5', 800, 1000), size: 's', y: 10 },
-    { cap: 'استوديو قاسمز', src: ph('g6', 1100, 800), size: 'l', y: 48, mute: true },
-    { cap: 'الإسكندرية، 2022', src: ph('g7', 700, 900), size: 's', y: 8 },
-    { cap: 'لندن، 2024', src: ph('g8', 900, 1000), size: 'm', y: 36 },
+    { cap: 'الأقصر — الضفة الغربية · 1968', src: storyLuxor, size: 'm', y: 20 },
   ],
 }
 
@@ -64,51 +64,49 @@ export const onoff = [
   {
     id: 'on-air', top: 'على', bottom: 'الهواء', script: 'على',
     text: 'أحدث الفيديوهات، أرقام القناة، وصور من الاستوديو.',
-    side: ph('side-a', 700, 1100),
+    side: storyCairo,
   },
   {
     id: 'backstage', top: 'خلف', bottom: 'الكواليس', script: 'خلف',
     text: 'تصوير، حملات، وكل اللي بيحصل قبل وبعد الكاميرا.',
-    side: ph('side-b', 700, 1100),
+    side: storyLuxor,
   },
 ]
 
 export const hall = {
   eyebrow: 'الأرشيف',
-  title: ['أشهر', 'الحلقات'],
-  intro: 'من أول حلقة لحد النهارده — كل حلقة مميزة ليها حكاية وشكل مختلف.',
-  feats: [ph('f0', 800, 1000), ph('f1', 800, 1000), ph('f2', 800, 1000)],
+  title: ['أشهر', 'الأعمال'],
+  intro: 'حكايات تاريخية ومراجعات سينمائية — من أرشيف قاسمز الحقيقي.',
+  feats: [storyCairo, storyAlex, storyLuxor],
   items: [
-    'الموسم 2025', 'ديسكو', 'الجليتر', 'البورسلين', 'اليابان', 'GIF', 'الموسم 2024',
-    'الوضع الداكن', 'السباق', 'لاس فيجاس', 'كروم', 'الشاطئ', 'السلة', 'الموسم 2021',
-    'سيلفرستون', 'الموسم 2019',
-  ].map((name, i) => ({ name, year: 2025 - Math.floor(i / 3), img: ph('h' + i, 700, 600), alt: ph('hh' + i, 700, 600) })),
+    { name: 'صباحٌ هادئ قبل ازدحام الترام', year: 1932, img: storyCairo, alt: storyAlex },
+    { name: 'ذاكرة البحر والضباب الشتوي', year: 1954, img: storyAlex, alt: storyLuxor },
+    { name: 'حوار الحجر والضوء', year: 1968, img: storyLuxor, alt: storyCairo },
+    // المراجعات: الصورة هي التريلر الرسمي للفيلم (المراجعة نفسها مكتوبة على موقع قاسمز)
+    { name: 'الوصول', year: 2025, img: 'https://i.ytimg.com/vi/tFMo3UJ4B4g/maxresdefault.jpg', alt: 'https://i.ytimg.com/vi/tFMo3UJ4B4g/maxresdefault.jpg' },
+    { name: 'كثيب: الجزء الثاني', year: 2025, img: 'https://i.ytimg.com/vi/Way9Dexny3w/maxresdefault.jpg', alt: 'https://i.ytimg.com/vi/Way9Dexny3w/maxresdefault.jpg' },
+  ],
 }
 
-// أحدث الفيديوهات: حط الـ id بتاع كل فيديو من لينك يوتيوب (youtube.com/watch?v=ID)
-// لو الـ id فاضي هتظهر صورة مؤقتة
+// أحدث الفيديوهات: الفيديو الوحيد المنشور على القناة حتى الآن (25 أكتوبر 2026).
+// لما ينزل فيديو جديد، ضيفه هنا بنفس الشكل — الـ id من لينك يوتيوب (youtube.com/watch?v=ID)
 export const videos = {
   eyebrow: 'على يوتيوب',
   title: ['أحدث', 'الفيديوهات'],
-  text: 'كل أسبوع فيديو جديد — اشترك وفعّل الجرس عشان يوصلك أول ما ينزل.',
-  stats: [
-    { value: 250, suffix: 'K+', label: 'مشترك' },
-    { value: 12, suffix: 'M+', label: 'مشاهدة' },
-    { value: 180, suffix: '+', label: 'فيديو' },
-  ],
+  text: 'كل جمعة حلقة جديدة من برنامج قاسمز الساعة 7 مساءً — اشترك وفعّل الجرس عشان يوصلك أول ما ينزل.',
   items: [
-    { id: '', title: 'عنوان الفيديو الأول', meta: 'منذ يومين' },
-    { id: '', title: 'عنوان الفيديو التاني', meta: 'منذ أسبوع' },
-    { id: '', title: 'عنوان الفيديو التالت', meta: 'منذ أسبوعين' },
-    { id: '', title: 'عنوان الفيديو الرابع', meta: 'منذ شهر' },
-    { id: '', title: 'عنوان الفيديو الخامس', meta: 'منذ شهر' },
-  ].map((v, i) => ({ ...v, thumb: v.id ? `https://i.ytimg.com/vi/${v.id}/maxresdefault.jpg` : ph('v' + i, 1280, 720) })),
+    { id: 'uj4KDGhHPhw', title: 'قاسمز | كيف بدأت فكرة الذكاء الاصطناعي؟!', meta: '25 أكتوبر 2026 · 287 مشاهدة' },
+  ].map((v) => ({ ...v, thumb: `https://i.ytimg.com/vi/${v.id}/maxresdefault.jpg` })),
 }
 
-export const partners = {
-  title: ['الشركاء', '& الرعاة'],
-  text: 'فخورين نشتغل مع براندات بتشاركنا نفس الشغف بالمحتوى والتأثير.',
-  logos: ['NORTHWIND', 'VELOCITY', 'AURORA', 'QUADRANT', 'MONOLITH', 'HALCYON', 'ORBITAL', 'KESTREL', 'PRISM', 'ATLAS', 'NOVA', 'ZENITH'],
-}
+// كروت السوشيال: صور حقيقية (فيديو القناة + تريلرات المراجعات + صور الحكايات)
+export const posts = [
+  { src: 'https://i.ytimg.com/vi/uj4KDGhHPhw/maxresdefault.jpg', href: 'https://www.youtube.com/watch?v=uj4KDGhHPhw' },
+  { src: 'https://i.ytimg.com/vi/tFMo3UJ4B4g/maxresdefault.jpg', href: 'https://www.youtube.com/watch?v=tFMo3UJ4B4g' },
+  { src: 'https://i.ytimg.com/vi/Way9Dexny3w/maxresdefault.jpg', href: 'https://www.youtube.com/watch?v=Way9Dexny3w' },
+  { src: storyCairo, href: 'https://ahmedqassimtv-commits.github.io/qassimz-platform/stories' },
+  { src: storyAlex, href: 'https://ahmedqassimtv-commits.github.io/qassimz-platform/stories' },
+  { src: storyLuxor, href: 'https://ahmedqassimtv-commits.github.io/qassimz-platform/stories' },
+]
 
-export const posts = [0, 1, 2, 3, 4, 5, 6].map((i) => ph('s' + i, 700, 1000))
+export const channelVideosUrl = channelVideos

@@ -191,12 +191,13 @@ export default class HeroGL {
   }
 
   onMove(e) {
+    // على اللمس مفيش ماوس — الصورة التانية (نظارة/كاب) متظهرش خالص، الصورة الأساسية ثابتة
+    if (e.pointerType === 'touch') { this.touch = true; return }
+    this.touch = false
     const r = this.canvas.getBoundingClientRect()
     const x = (e.clientX - r.left) / r.width, y = 1 - (e.clientY - r.top) / r.height
     const inside = x >= 0 && x <= 1 && y >= 0 && y <= 1
     if (inside && !this.mouse.in) { this.mouse.x = this.mouse.px = x; this.mouse.y = this.mouse.py = y }
-    if (e.pointerType === 'touch') this.touch = true
-    else this.touch = false
     this.mouse.in = inside
     if (inside) { this.ghost.idle = 0; this.mouse.tx = x; this.mouse.ty = y }
   }
@@ -208,10 +209,10 @@ export default class HeroGL {
     const dt = Math.min((now - (this.last || now)) / 1000, 0.05); this.last = now
     this.time += dt
 
-    // مؤشر وهمي: بيتحرك لوحده على الوش في البداية ولما الماوس يقف (وعلى الموبايل)
+    // مؤشر وهمي: بيتحرك لوحده على الوش في البداية ولما الماوس يقف — ديسكتوب بس، مش على اللمس
     const gh = this.ghost
     gh.idle += dt
-    const useGhost = gh.on && (gh.idle > 2.2 || this.touch)
+    const useGhost = gh.on && gh.idle > 2.2 && !this.touch
     if (useGhost) {
       gh.t += dt
       const k = gh.t * 0.55

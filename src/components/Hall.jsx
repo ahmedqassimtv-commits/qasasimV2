@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
-import { hall } from '../data/content'
+import { hall, channelVideosUrl } from '../data/content'
 import { Btn } from './Bits'
 
 // إطار البطاقة بالـ "notch": الحافة السفلية ترتفع بمنحنى ويقعد العنوان تحتها (زي كروت الخوذ)
@@ -77,7 +77,7 @@ export default function Hall() {
       </div>
       <div className="hall__more">
         <p>شوف حلقات أكتر ولقطات من الاستوديو</p>
-        <Btn href="#">كل الحلقات</Btn>
+        <Btn href={channelVideosUrl} target="_blank" rel="noreferrer">كل الأعمال</Btn>
       </div>
     </section>
   )

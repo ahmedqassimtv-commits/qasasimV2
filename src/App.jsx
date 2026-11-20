@@ -8,7 +8,7 @@ import Message from './components/Message'
 import Track from './components/Track'
 import OnOff from './components/OnOff'
 import Hall from './components/Hall'
-import { Videos, Partners, Socials, Footer } from './components/Lower'
+import { Videos, Socials, Footer } from './components/Lower'
 
 export default function App() {
   const [loading, setLoading] = useState(true)
@@ -33,7 +33,6 @@ export default function App() {
         <OnOff />
         <Videos />
         <Hall />
-        <Partners />
         <Socials />
       </main>
       <Footer />
