@@ -4,7 +4,7 @@ import { useGSAP } from '@gsap/react'
 import { onoff } from '../data/content'
 import { ArrowIcon } from './Bits'
 
-const COLS = 14, ROWS = 6
+const COLS = 16, ROWS = 4
 
 /**
  * «على الهواء / خلف الكواليس» — زي ON TRACK / OFF TRACK:
@@ -36,7 +36,7 @@ export default function OnOff() {
     gsap.fromTo(cells, { scale: 0 }, {
       scale: 1, ease: 'none',
       stagger: { each: 0.02, from: 'end', grid: [ROWS, COLS], amount: 0.8, ease: 'power1.in' },
-      scrollTrigger: { trigger: '.oo__px', start: 'top 95%', end: 'bottom 70%', scrub: 0.5 },
+      scrollTrigger: { trigger: root.current, start: 'bottom 85%', end: 'bottom 25%', scrub: 0.5 },
     })
   }, { scope: root })
 

@@ -3,10 +3,11 @@ import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { LogoMark, NameLockup, Roll, Btn, PlayIcon } from './Bits'
-import { nav, site, socials, track } from '../data/content'
+import { nav, site, socials, track, hall } from '../data/content'
 import { scroll } from '../hooks/useLenis'
 
-const menuImgs = track.items.filter((i) => i.src).slice(0, 6)
+// صور القائمة: عمودين صغيرين على الشمال (زي الأصلي) — صورة لكل رابط
+const menuImgs = [...track.items.filter((i) => i.src).map((i) => i.src), ...hall.items.map((h) => h.img)].slice(0, 6)
 
 // ألوان الشريط لكل نوع خلفية
 const THEMES = {
@@ -24,15 +25,17 @@ export default function Nav({ ready }) {
     tl.current = gsap.timeline({ paused: true, defaults: { ease: 'expo.inOut' } })
       .set('.menu', { autoAlpha: 1 })
       .fromTo('.menu__bg', { scaleY: 0 }, { scaleY: 1, duration: 0.9 })
-      .fromTo('.menu__col', { yPercent: (i) => (i ? 40 : -40), autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: 1.1, ease: 'expo.out' }, 0.35)
-      .fromTo('.menu__link > *', { yPercent: 115 }, { yPercent: 0, duration: 0.9, stagger: 0.07, ease: 'expo.out' }, 0.45)
-      .fromTo('.menu__foot > *', { y: 20, autoAlpha: 0 }, { y: 0, autoAlpha: 1, stagger: 0.05, duration: 0.6, ease: 'power3.out' }, 0.7)
-      .fromTo('.menu__strike', { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: 'power3.inOut' }, 0.9)
+      .fromTo('.menu__img', { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1, stagger: 0.06 }, 0.3)
+      .fromTo('.menu__link > span:first-child', { yPercent: 115 }, { yPercent: 0, duration: 0.9, stagger: 0.07, ease: 'expo.out' }, 0.45)
+      .fromTo('.menu__brand, .menu__foot > *', { y: 20, autoAlpha: 0 }, { y: 0, autoAlpha: 1, stagger: 0.06, duration: 0.6, ease: 'power3.out' }, 0.75)
+      .fromTo('.menu__strike path', { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.7, ease: 'power2.inOut' }, 1)
 
-    // الصور في القائمة تنزلق ببطء بلا توقف (عمود لفوق وعمود لتحت)
-    gsap.utils.toArray('.menu__track').forEach((t, i) => {
-      gsap.fromTo(t, { yPercent: i ? -50 : 0 }, { yPercent: i ? 0 : -50, duration: 40, ease: 'none', repeat: -1 })
-    })
+    // العمودين بيتحركوا عكس بعض مع الماوس (parallax خفيف)
+    const cols = gsap.utils.toArray('.menu__col')
+    const mv = cols.map((c) => gsap.quickTo(c, 'y', { duration: 1.4, ease: 'power3' }))
+    const onMove = (e) => { const k = e.clientY / innerHeight - 0.5; mv[0]?.(k * -60); mv[1]?.(k * 60) }
+    window.addEventListener('pointermove', onMove, { passive: true })
+    return () => window.removeEventListener('pointermove', onMove)
   }, { scope: root })
 
   useEffect(() => {
@@ -78,40 +81,47 @@ export default function Nav({ ready }) {
       </header>
 
       <div className="menu" aria-hidden={!open}>
-        <div className="menu__bg" />
-        <div className="menu__grid">
+        <div className="menu__bg topo topo--dark" />
+        <div className="menu__grid" dir="ltr">
+          {/* الشمال: عمودين صور صغيرين */}
           <div className="menu__imgs">
             {[0, 1].map((c) => (
-              <div className="menu__col" key={c}>
-                <div className="menu__track">
-                  {[...menuImgs, ...menuImgs].filter((_, i) => i % 2 === c).map((m, i) => {
-                    const idx = menuImgs.indexOf(m) % nav.length
-                    return (
-                      <div className={`menu__img ${idx === active ? 'is-active' : ''}`} key={i}>
-                        <img src={m.src} alt="" />
-                      </div>
-                    )
-                  })}
-                </div>
+              <div className={`menu__col menu__col--${c}`} key={c}>
+                {menuImgs.filter((_, i) => i % 2 === c).map((src, k) => {
+                  const idx = k * 2 + c
+                  return (
+                    <div className={`menu__img ${idx % nav.length === active ? 'is-active' : ''}`} key={k}>
+                      <img src={src} alt="" />
+                    </div>
+                  )
+                })}
               </div>
             ))}
           </div>
 
-          <div className="menu__side">
+          {/* اليمين: الروابط في النص + اللوجو + التواصل تحت */}
+          <div className="menu__side" dir="rtl">
             <nav className="menu__links">
               {nav.map((n, i) => (
-                <a key={n.label} href={n.href} className="menu__link" data-roll
+                <a key={n.label} href={n.href} className={`menu__link ${i === 0 ? 'is-current' : ''}`}
                   onMouseEnter={() => setActive(i)} onClick={() => setOpen(false)}>
-                  <span><Roll>{n.label}</Roll></span>
-                  {i === 0 && <span className="menu__strike" />}
+                  <span>{n.label}</span>
+                  {i === 0 && (
+                    <svg className="menu__strike" viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden>
+                      <path d="M0 9C18 3 30 3 46 9S78 15 96 9 128 3 146 9 182 15 200 9" pathLength="1" strokeDasharray="1" />
+                    </svg>
+                  )}
                 </a>
               ))}
             </nav>
-            <div className="menu__foot">
+            <div className="menu__brand">
+              <LogoMark />
               <p className="eyebrow">{site.since}</p>
-              <a href={`mailto:${site.email}`} className="tlink" data-roll><Roll>للتعاون والإعلانات</Roll></a>
+            </div>
+            <div className="menu__foot">
+              <a href={`mailto:${site.email}`} className="tlink menu__mail" data-roll><Roll>للتعاون والإعلانات</Roll></a>
               <div className="menu__soc">
-                {socials.map((s) => <a key={s.label} href={s.href} className="tlink" data-roll><Roll>{s.label}</Roll></a>)}
+                {socials.map((s) => <a key={s.label} href={s.href} className="tlink" data-roll target="_blank" rel="noreferrer"><Roll>{s.label}</Roll></a>)}
               </div>
             </div>
           </div>

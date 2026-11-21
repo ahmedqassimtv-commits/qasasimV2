@@ -12,6 +12,9 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
  * وبعدين الكلمات بتتجمع لسطور حسب مكانها الفعلي على الشاشة.
  */
 
+// لو العنصر جوه المسار الأفقي (Track) لازم يتربط بحركته الأفقية مش بالتمرير العمودي
+export const revealCtx = { ca: null }
+
 function splitLines(el) {
   if (el.__hlOrig == null) el.__hlOrig = el.innerHTML
   else el.innerHTML = el.__hlOrig
@@ -78,7 +81,11 @@ export function initReveal(scope = document) {
     })
     el.__hlTl = tl
     el.__hlSt?.kill()
-    el.__hlSt = ScrollTrigger.create({ trigger: el, start: 'top 90%', once: true, onEnter: () => tl.play() })
+    const ca = el.closest('.trk__rail') ? revealCtx.ca : null
+    el.__hlSt = ScrollTrigger.create({
+      trigger: el, once: true, onEnter: () => tl.play(),
+      ...(ca ? { containerAnimation: ca, start: 'left 88%' } : { start: 'top 90%' }),
+    })
   }
 
   items.forEach(build)

@@ -2,13 +2,13 @@ import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import HeroGL from '../lib/heroGL'
+import Wire from '../lib/wire'
 import { marquee } from '../lib/marquee'
 import { LogoMark } from './Bits'
+import Signature from './Signature'
+import { drawSignature } from '../lib/drawSignature'
 import { hero, site } from '../data/content'
 
-// التوقيع (مسار SVG واحد بيترسم مع التمرير) — تقدر تبدّله بتوقيعك الحقيقي
-const SIG = 'M58 372C150 300 300 176 468 108C566 70 600 108 520 152C420 206 246 252 122 266C58 273 46 236 112 222C204 202 262 214 250 246C238 282 222 334 230 352C238 300 268 242 300 234C322 229 310 302 316 330C330 282 352 252 374 252C394 252 380 312 394 322C410 300 424 272 446 262C478 250 524 248 596 230'
-const SIG_LINE = 'M150 392C260 372 420 356 560 330'
 
 /**
  * الـ Hero (sticky track) — زي الأصلي:
@@ -21,11 +21,15 @@ export default function Hero() {
   const root = useRef(null)
   const canvas = useRef(null)
   const gl = useRef(null)
+  const wireBack = useRef(null)
+  const wireFront = useRef(null)
+  const wire = useRef(null)
 
   useEffect(() => {
     gl.current = new HeroGL(canvas.current, { a: hero.imageA, b: hero.imageB, fit: 0.84, fitM: 0.56 })
     if (gl.current.failed) canvas.current.parentElement.classList.add('no-gl')
-    return () => gl.current?.destroy()
+    wire.current = new Wire([wireBack.current, wireFront.current], { fit: 0.84, fitM: 0.56 })
+    return () => { gl.current?.destroy(); wire.current?.destroy() }
   }, [])
 
   useGSAP(() => {
@@ -44,6 +48,8 @@ export default function Hero() {
     // دخول بعد شاشة التحميل: الصورة بتتزق لجوه + حركة قوية تلقائية على الوش
     const intro = () => {
       gl.current?.intro?.()
+      // الخوذة الشبكية بتظهر وبتلف
+      wire.current?.reveal()
       gsap.timeline()
         .fromTo('.hero__stage', { scale: 1.12 }, { scale: 1, duration: 2, ease: 'expo.out' })
         .fromTo('.hero__topo', { opacity: 0 }, { opacity: 1, duration: 1.4 }, 0.2)
@@ -53,7 +59,11 @@ export default function Hero() {
 
     const mm = gsap.matchMedia()
     mm.add({ desk: '(min-width: 768px)', mob: '(max-width: 767px)' }, (ctx) => {
-      const target = ctx.conditions.desk ? 0.53 : 0.8
+      // الكارت النهائي زي الأصلي: ~ثلث عرض الشاشة × نص ارتفاعها (مش مجرد تصغير للشاشة كلها)
+      const desk = ctx.conditions.desk
+      const sc = desk ? 0.6 : 0.82
+      const cw = desk ? 0.34 : 0.72, ch = desk ? 0.5 : 0.42
+      const ix = ((1 - cw / sc) / 2) * 100, iy = ((1 - ch / sc) / 2) * 100
       const g = { grey: 0, dark: 0 }
       const upd = () => { if (gl.current) { gl.current.grey = g.grey; gl.current.dark = g.dark } }
       gsap.timeline({
@@ -63,15 +73,16 @@ export default function Hero() {
           onToggle: (s) => gl.current && (gl.current.visible = s.isActive || s.progress < 1),
         },
       })
-        .to('.hero__stage', { scale: target, backgroundColor: '#a3a59e', duration: 0.4 }, 0)
+        .fromTo('.hero__stage', { scale: 1, clipPath: 'inset(0% 0% 0% 0%)' },
+          { scale: sc, clipPath: `inset(${iy}% ${ix}% ${iy}% ${ix}%)`, backgroundColor: '#a3a59e', duration: 0.4 }, 0)
+        .to('.hero__wire', { autoAlpha: 0, duration: 0.2 }, 0.1)
         .to(g, { grey: 0.85, duration: 0.4, onUpdate: upd }, 0)
         .to('.hero__ui', { autoAlpha: 0, y: -40, duration: 0.12 }, 0)
         .fromTo('.hero__back', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.25 }, 0.08)
         .fromTo('.hero__marq', { autoAlpha: 0, yPercent: 8 }, { autoAlpha: 1, yPercent: 0, duration: 0.3 }, 0.12)
         .fromTo('.hero__msg', { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.15 }, 0.3)
-        // التوقيع بيترسم والكارت بيغمق زيتوني
-        .fromTo('.hero__sig .s1', { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.42, ease: 'power1.inOut' }, 0.42)
-        .fromTo('.hero__sig .s2', { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.1 }, 0.84)
+        // التوقيع بيترسم خط ورا خط والكارت بيغمق زيتوني
+        .add(drawSignature(root.current.querySelector('.hero__sig'), { duration: 0.46 }), 0.4)
         .to('.hero__stage', { backgroundColor: '#4b4f43', duration: 0.4 }, 0.45)
         .to(g, { dark: 1, duration: 0.4, onUpdate: upd }, 0.45)
         .to({}, { duration: 0.08 })
@@ -100,14 +111,13 @@ export default function Hero() {
 
         <div className="hero__stage">
           <div className="hero__topo" />
+          <canvas ref={wireBack} className="hero__wire hero__wire--back" />
           <canvas ref={canvas} className="hero__gl" />
+          <canvas ref={wireFront} className="hero__wire hero__wire--front" />
           <img className="hero__fallback" src={hero.imageA} alt={site.nameAr} />
         </div>
 
-        <svg className="hero__sig" viewBox="0 0 640 420" fill="none" aria-hidden>
-          <path className="s1" d={SIG} pathLength="1" strokeDasharray="1" />
-          <path className="s2" d={SIG_LINE} pathLength="1" strokeDasharray="1" />
-        </svg>
+        <Signature className="hero__sig" />
 
         <div className="hero__msg">
           <LogoMark className="hero__msg-logo" />

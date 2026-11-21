@@ -103,15 +103,24 @@ export const videos = {
   ].map((v) => ({ ...v, thumb: `https://i.ytimg.com/vi/${v.id}/maxresdefault.jpg` })),
 }
 
-// كروت السوشيال: صور حقيقية (فيديو القناة + تريلرات المراجعات + صور الحكايات)
-export const posts = [
-  { src: 'https://i.ytimg.com/vi/uj4KDGhHPhw/maxresdefault.jpg', href: 'https://www.youtube.com/watch?v=uj4KDGhHPhw' },
-  { src: 'https://i.ytimg.com/vi/tFMo3UJ4B4g/maxresdefault.jpg', href: 'https://www.youtube.com/watch?v=tFMo3UJ4B4g' },
-  { src: 'https://i.ytimg.com/vi/Way9Dexny3w/maxresdefault.jpg', href: 'https://www.youtube.com/watch?v=Way9Dexny3w' },
-  { src: storyCairo, href: 'https://ahmedqassimtv-commits.github.io/qassimz-platform/stories' },
-  { src: storyAlex, href: 'https://ahmedqassimtv-commits.github.io/qassimz-platform/stories' },
-  { src: storyLuxor, href: 'https://ahmedqassimtv-commits.github.io/qassimz-platform/stories' },
+// ===== الشورتس (فيديوهات قصيرة بالطول) — بتتعرض كمروحة كروت في قسم «إيه الجديد» =====
+// حط الـ id من لينك الشورت: youtube.com/shorts/ID — الصورة بتتجاب أوتوماتيك
+// (لحد ما تضيف شورتس، الكروت بتعرض صور مؤقتة من محتوى القناة)
+const shortsIds = [
+  // { id: 'XXXXXXXXXXX', title: 'عنوان الشورت' },
 ]
+const shortsFallback = [
+  'https://i.ytimg.com/vi/uj4KDGhHPhw/maxresdefault.jpg',
+  'https://i.ytimg.com/vi/tFMo3UJ4B4g/maxresdefault.jpg',
+  storyCairo,
+  'https://i.ytimg.com/vi/Way9Dexny3w/maxresdefault.jpg',
+  storyAlex,
+  'https://i.ytimg.com/vi/nJ1yQn17lbE/maxresdefault.jpg',
+  storyLuxor,
+]
+export const shorts = shortsIds.length
+  ? shortsIds.map((s) => ({ ...s, thumb: `https://i.ytimg.com/vi/${s.id}/oar2.jpg`, href: `https://www.youtube.com/shorts/${s.id}` }))
+  : shortsFallback.map((src) => ({ id: '', title: '', thumb: src, href: 'https://www.youtube.com/@AhmedQassimTV/shorts' }))
 
 export const channelVideosUrl = channelVideos
 
@@ -120,7 +129,7 @@ export const channelVideosUrl = channelVideos
 export const articles = {
   eyebrow: 'من منصة قاسمز',
   title: ['أحدث', 'المقالات'],
-  intro: 'مقالات، مراجعات سينمائية، وحكايات من أرشيف مصر — مكتوبة على مهل.',
+  intro: 'مقالات، مراجعات سينمائية، وحكايات من مختلف الأبعاد.',
   all: platform + '/articles',
   items: [
     {
