@@ -28,8 +28,8 @@ export const hero = {
   imageB: asset('images/hero-2.webp'), // بالنظارة والكاب (تنكشف مع الماوس — ديسكتوب بس)
   next: { label: 'أحدث فيديو', title: 'قاسمز', sub: 'شاهد الآن', href: 'https://www.youtube.com/watch?v=uj4KDGhHPhw' },
   // سطرا الـ marquee خلف الصورة بعد التمرير
-  marqueeTop: 'كل حلقة بنعملها كأنها الأولى — ',
-  marqueeBottom: 'والحكاية لسه مكمّلة وعندنا كتير نقوله — ',
+  marqueeTop: 'كل حلقة بنعملها كأنها الأولى  ',
+  marqueeBottom: 'والحكاية لسه مكمّلة وعندنا كتير نقوله  ',
   messageEyebrow: 'رسالة من أحمد',
 }
 

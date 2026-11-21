@@ -260,7 +260,9 @@ export default class HeroGL {
       m.ty = f.y + Math.cos(this.time * 1.6) * f.ry * 0.28
     }
 
-    const active = m.in || useGhost || this.flood
+    // في وضع الكارت (رمادي) مفيش كشف خالص — عشان مايظهرش حتت كاب على الوش وهو بيتحرك
+    const card = this.grey > 0.02
+    const active = !card && (m.in || useGhost || this.flood)
     const lerp = 1 - Math.pow(0.0008, dt)
     m.px = m.x; m.py = m.y
     m.x += (m.tx - m.x) * lerp; m.y += (m.ty - m.y) * lerp
@@ -275,10 +277,10 @@ export default class HeroGL {
     gl.uniform1i(u.uPrev, 0)
     gl.uniform2f(u.uA, m.px, m.py); gl.uniform2f(u.uB, m.x, m.y)
     gl.uniform1f(u.uR, this.radius * (0.78 + m.speed * 0.55) * (this.flood ? 2.5 : 1))
-    gl.uniform1f(u.uStrength, this.flood ? 0.5 : active ? (useGhost ? 0.15 + gh.boost * 0.1 : 0.22) + m.speed * 0.55 : 0)
+    gl.uniform1f(u.uStrength, card ? 0 : this.flood ? 0.5 : active ? (useGhost ? 0.15 + gh.boost * 0.1 : 0.22) + m.speed * 0.55 : 0)
     gl.uniform1f(u.uAspect, this.w / this.h)
     gl.uniform1f(u.uTime, this.time)
-    gl.uniform1f(u.uDecay, 0.986)
+    gl.uniform1f(u.uDecay, card ? 0.82 : 0.986)
     gl.uniform1f(u.uDt, dt)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
     ;[this.ping, this.pong] = [this.pong, this.ping]

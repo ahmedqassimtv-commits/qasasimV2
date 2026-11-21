@@ -14,17 +14,10 @@ import { initVelocity } from '../lib/velocity'
  */
 export default function Extras({ ready }) {
   const wipe = useRef(null)
-  const bar = useRef(null)
 
   useEffect(() => {
     if (!ready) return
     const stopVel = initVelocity()
-
-    // مؤشر التقدّم
-    const prog = ScrollTrigger.create({
-      start: 0, end: 'max',
-      onUpdate: (s) => gsap.set(bar.current, { scaleY: s.progress }),
-    })
 
     // خلفيات الكنتور بتتحرك بالعرض مع السكرول (الصورة cover فبتتحرك في المساحة الزيادة)
     const bgs = gsap.utils.toArray('section.topo, .ft__panel.topo').map((el) =>
@@ -60,13 +53,12 @@ export default function Extras({ ready }) {
     }
     document.addEventListener('click', onClick)
 
-    return () => { stopVel(); prog.kill(); bgs.forEach((t) => t.scrollTrigger?.kill()); document.removeEventListener('click', onClick) }
+    return () => { stopVel(); bgs.forEach((t) => t.scrollTrigger?.kill()); document.removeEventListener('click', onClick) }
   }, [ready])
 
   return (
     <>
       <div className="wipe" ref={wipe} aria-hidden><LogoMark /></div>
-      <div className="progress" aria-hidden><i ref={bar} /></div>
     </>
   )
 }

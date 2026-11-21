@@ -3,15 +3,15 @@ import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { LogoMark, NameLockup, Roll, Btn, PlayIcon } from './Bits'
-import { site, socials, track, hall, hero } from '../data/content'
+import { site, socials, asset } from '../data/content'
 import { scroll } from '../hooks/useLenis'
 
-// صور القائمة: 4 صور واضحة ومختلفة في عمودين (2×2 مثل تصميم landonorris.com بالظبط)
+// صور القائمة: صورك انت بس (4 صور في عمودين (2×2 مثل تصميم landonorris.com بالظبط)
 const menuImgs = [
-  hero.imageB,
-  track.items.find((i) => i.src)?.src,
-  hall.items[3]?.img || track.items[1]?.src,
-  hall.items[4]?.img || track.items[3]?.src,
+  asset('images/hero-2.webp'),
+  asset('images/side-1.webp'),
+  asset('images/hero-1.webp'),
+  asset('images/side-2.webp'),
 ].filter(Boolean)
 
 // spec: 4 روابط بس في القائمة (قائمة الفوتر منفصلة في content.nav)
@@ -147,7 +147,7 @@ export default function Nav({ ready }) {
                   const idx = k * 2 + c
                   const isActive = active % menuImgs.length === idx
                   return (
-                    <div className={`menu__img ${isActive ? 'is-active' : ''} ${idx === 0 ? 'menu__img--portrait' : ''}`} key={k}>
+                    <div className={`menu__img ${isActive ? 'is-active' : ''} menu__img--portrait`} key={k}>
                       <img src={src} alt="" />
                     </div>
                   )

@@ -207,7 +207,7 @@ section { position: relative; }
 
 .hero__marq { position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; justify-content: center; gap: 0.2em; pointer-events: none; }
 .hero__row { display: flex; width: max-content; white-space: nowrap; line-height: 1.12; will-change: transform; backface-visibility: hidden; }
-.hero__row span { padding-inline: 0.25em; }
+.hero__row span { padding-inline: 0.55em; }
 .hero__row--serif { font-family: var(--serif); font-weight: 300; color: var(--lime-2); font-size: clamp(3rem, 8.4vw, 10rem); }
 .hero__row--bold { font-family: var(--display); font-weight: 800; color: var(--ink); font-size: clamp(3rem, 8vw, 9.5rem); }
 
@@ -649,7 +649,7 @@ section { position: relative; }
 }
 
 /* التوقيع */
-.sig { display: block; overflow: visible; color: var(--lime); filter: drop-shadow(0 0 14px rgba(210, 255, 0, 0.28)); }
+.sig { display: block; overflow: visible; color: var(--lime); shape-rendering: geometricPrecision; }
 
 /* ============ ظهور النصوص بالشريط الليموني ============ */
 .hl-line { display: block; }

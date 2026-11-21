@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import HeroGL from '../lib/heroGL'
-import Wire from '../lib/wire'
 import { marquee } from '../lib/marquee'
 import { scroll } from '../hooks/useLenis'
 import { LogoMark, PlayIcon } from './Bits'
@@ -14,16 +13,12 @@ export default function Hero() {
   const root = useRef(null)
   const canvas = useRef(null)
   const gl = useRef(null)
-  const wireBack = useRef(null)
-  const wireFront = useRef(null)
-  const wire = useRef(null)
   const [locked, setLocked] = useState(false)
 
   useEffect(() => {
     gl.current = new HeroGL(canvas.current, { a: hero.imageA, b: hero.imageB, fit: 0.84, fitM: 0.58 })
     if (gl.current.failed) canvas.current.parentElement.classList.add('no-gl')
-    wire.current = new Wire([wireBack.current, wireFront.current], { fit: 0.84, fitM: 0.58 })
-    return () => { gl.current?.destroy(); wire.current?.destroy() }
+    return () => { gl.current?.destroy() }
   }, [])
 
   // تثبيت التمرير على الموبايل للتفاعل بحرية مع تأثير النظارة السائل (زي Tap to lock في الأصلي)
@@ -70,9 +65,8 @@ export default function Hero() {
 
     const intro = () => {
       gl.current?.intro?.()
-      wire.current?.reveal()
       gsap.timeline()
-        .fromTo('.hero__stage', { scale: 1.06 }, { scale: 1, duration: 1.8, ease: 'expo.out' })
+        .fromTo('.hero__gl', { scale: 1.06 }, { scale: 1, duration: 1.8, ease: 'expo.out' })
         .fromTo('.hero__topo', { opacity: 0 }, { opacity: 1, duration: 1.2, stagger: 0.15 }, 0.1)
         .from('.hero__ui > *', { y: 26, autoAlpha: 0, stagger: 0.08, duration: 0.9, ease: 'expo.out' }, 0.45)
     }
@@ -90,14 +84,12 @@ export default function Hero() {
       gsap.timeline({
         defaults: { ease: 'none' },
         scrollTrigger: {
-          trigger: root.current, start: 'top top', end: 'bottom bottom', scrub: 0.6,
+          trigger: root.current, start: 'top top', end: 'bottom bottom', scrub: true,
           onUpdate: (s) => {
             if (gl.current) gl.current.visible = s.progress < 0.995
-            if (wire.current) wire.current.visible = s.progress < 0.32
           },
           onLeave: () => {
             if (gl.current) gl.current.visible = false
-            if (wire.current) wire.current.visible = false
           },
           onEnterBack: () => {
             if (gl.current) gl.current.visible = true
@@ -106,7 +98,6 @@ export default function Hero() {
       })
         .fromTo('.hero__stage', { scale: 1, clipPath: 'inset(0% 0% 0% 0% round 0px)' },
           { scale: sc, clipPath: `inset(${iy}% ${ix}% ${iy}% ${ix}% round 16px)`, backgroundColor: '#a3a59e', duration: 0.4 }, 0)
-        .to('.hero__wire', { autoAlpha: 0, duration: 0.18 }, 0.06)
         .to(g, { grey: 0.85, duration: 0.4, onUpdate: upd }, 0)
         .to('.hero__ui', { autoAlpha: 0, y: -36, duration: 0.12 }, 0)
         .fromTo('.hero__back', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.25 }, 0.08)
@@ -143,9 +134,7 @@ export default function Hero() {
         <div className="hero__stage">
           <div className="hero__topo hero__topo--a" />
           <div className="hero__topo hero__topo--b" />
-          <canvas ref={wireBack} className="hero__wire hero__wire--back" />
           <canvas ref={canvas} className="hero__gl" />
-          <canvas ref={wireFront} className="hero__wire hero__wire--front" />
           <img className="hero__fallback" src={hero.imageA} alt={site.nameAr} />
         </div>
 
