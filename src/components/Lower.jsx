@@ -173,7 +173,7 @@ export function Footer() {
   useGSAP(() => {
     // التوقيع بيترسم خط ورا خط لما الفوتر يظهر
     const sig = root.current.querySelector('.ft__sig')
-    const tl = drawSignature(sig, { duration: 1.8, ease: 'power1.inOut' }).pause()
+    const tl = drawSignature(sig, { duration: 2.1 }).pause()
     gsap.timeline({ scrollTrigger: { trigger: '.ft__tag', start: 'top 86%', onEnter: () => tl.play(0) } })
 
     // حركة خلفية الكنتور الداكنة داخل الفوتر
@@ -256,20 +256,18 @@ export function Footer() {
           {/* البورتريه من غير كاب ونضارة، كبير وملاصق للحافة السفلية */}
           <img className="ft__photo" src={asset('images/hero-1.webp')} alt={site.nameAr} loading="lazy" />
 
-          {/* spec: شعاع نور رأسي زي ضوء الخوذة فوق شريط BUSINESS ENQUIRIES الليموني بعرض اللوحة */}
-          <span className="ft__beam" aria-hidden />
-          <a href={`mailto:${site.email}`} className="ft__bizbar" data-roll>
-            <Roll>BUSINESS ENQUIRIES</Roll>
-            <span className="ft__bizbar-ar">للتعاون والإعلانات</span>
-            <ArrowIcon />
-          </a>
+          {/* زرار BUSINESS ENQUIRIES الليموني الصغير في النص فوق الصورة */}
+          <div className="ft__cta">
+            <Btn href={`mailto:${site.email}`} theme="lime" className="ft__mail" icon={<ArrowIcon />}>BUSINESS ENQUIRIES</Btn>
+          </div>
 
-          {/* لسانان ليمونيان منحنيان في الزاويتين السفليتين (يمين وشمال) بالظبط مثل image_4.png */}
+          {/* الركنتين الليموني تحت: الحقوق في ناحية والروابط الصغيرة في الناحية التانية */}
           <div className="ft__corner ft__corner--start">
-            <span>© {new Date().getFullYear()} {site.nameAr} — كل الحقوق محفوظة</span>
+            <span>© {new Date().getFullYear()} <b>{site.nameAr}.</b> كل الحقوق محفوظة</span>
           </div>
           <div className="ft__corner ft__corner--end">
-            <NameLockup withMark={false} />
+            <a href={`mailto:${site.email}`} data-roll><Roll>تواصل</Roll></a>
+            <a href={site.youtube} target="_blank" rel="noreferrer" data-roll><Roll>يوتيوب</Roll></a>
           </div>
         </div>
       </div>
