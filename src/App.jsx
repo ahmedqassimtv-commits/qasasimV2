@@ -9,6 +9,7 @@ import Track from './components/Track'
 import OnOff from './components/OnOff'
 import Hall from './components/Hall'
 import Articles from './components/Articles'
+import Extras from './components/Extras'
 import { initReveal } from './lib/reveal'
 import { Videos, Socials, Footer } from './components/Lower'
 
@@ -36,6 +37,7 @@ export default function App() {
     <>
       {loading && <Preloader onDone={done} />}
       <Nav ready={ready} />
+      <Extras ready={ready} />
       <main>
         <Hero />
         <Message />

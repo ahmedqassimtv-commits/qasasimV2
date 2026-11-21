@@ -2,7 +2,6 @@ import { useRef, useState } from 'react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { onoff } from '../data/content'
-import { scroll } from '../hooks/useLenis'
 import { ArrowIcon } from './Bits'
 
 const COLS = 16, ROWS = 4
@@ -44,14 +43,6 @@ export default function OnOff() {
     })
   }, { scope: root })
 
-  const jump = (idx) => (e) => {
-    e.preventDefault()
-    const target = document.querySelector(idx === 0 ? '#videos' : '#articles')
-    if (!target) return
-    if (scroll.lenis) scroll.lenis.scrollTo(target, { duration: 1.1 })
-    else target.scrollIntoView({ behavior: 'smooth' })
-  }
-
   return (
     <section className={`oo ${hover > -1 ? 'has-hover' : ''}`} ref={root} data-nav="light">
       <div className="oo__topo" aria-hidden />
@@ -70,7 +61,6 @@ export default function OnOff() {
             className={`oo__col oo__col--${i} ${hover === i ? 'is-on' : ''}`}
             onMouseEnter={() => setHover(i)}
             onMouseLeave={() => setHover(-1)}
-            onClick={jump(i)}
           >
             <h3 className="oo__h" data-hl>
               <span className="oo__top">{o.top}</span>

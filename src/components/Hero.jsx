@@ -10,13 +10,6 @@ import Signature from './Signature'
 import { drawSignature } from '../lib/drawSignature'
 import { hero, site } from '../data/content'
 
-/**
- * الـ Hero (sticky track) — مطابق لإحساس landonorris.com:
- * 1) خلفية فاتحة بطبقتين كنتوريتين تتحركان حركة موجية حيّة + parallax ناعم مع الماوس بدون انكشاف أي حافة أو فريم مكسور.
- * 2) مجسّم نظارة 3D Wireframe متمركز بدقة على مكان النظارة والعينين يتحرك ويتفاعل مع الماوس.
- * 3) WebGL Liquid Reveal يكشف صورة النظارة والكاب بنعومة تامة بدون اهتزاز، مع زر «اضغط للتثبيت» على الموبايل.
- * 4) مع التمرير: يصغر لكارت بحواف ناعمة، يظهر وراءه الـ Marquee والخلفية الكنتورية الداكنة المتحركة، ويُرسَم التوقيع الليموني.
- */
 export default function Hero() {
   const root = useRef(null)
   const canvas = useRef(null)
@@ -33,12 +26,16 @@ export default function Hero() {
     return () => { gl.current?.destroy(); wire.current?.destroy() }
   }, [])
 
-  // تثبيت التمرير على الموبايل للتفاعل بحرية مع تأثير النظارة السائل (مثل tap to lock في الأصلي)
+  // تثبيت التمرير على الموبايل للتفاعل بحرية مع تأثير النظارة السائل (زي Tap to lock في الأصلي)
   useEffect(() => {
     if (locked) scroll.lenis?.stop()
     else scroll.lenis?.start()
+    document.documentElement.classList.toggle('hero-locked', locked)
     document.body.classList.toggle('is-hero-locked', locked)
-    return () => { document.body.classList.remove('is-hero-locked') }
+    return () => {
+      document.documentElement.classList.remove('hero-locked')
+      document.body.classList.remove('is-hero-locked')
+    }
   }, [locked])
 
   useGSAP(() => {
@@ -71,7 +68,6 @@ export default function Hero() {
     }
     window.addEventListener('pointermove', onMove, { passive: true })
 
-    // دخول سلس بعد شاشة التحميل بدون أي قفز أو فريم مكسور
     const intro = () => {
       gl.current?.intro?.()
       wire.current?.reveal()
@@ -161,7 +157,14 @@ export default function Hero() {
         </div>
 
         <div className="hero__ui">
-          <a href={hero.next.href} className="hero__next" target="_blank" rel="noreferrer">
+          <a
+            href={hero.next.href}
+            className="hero__next"
+            target="_blank"
+            rel="noreferrer"
+            onMouseEnter={() => gl.current && (gl.current.flood = true)}
+            onMouseLeave={() => gl.current && (gl.current.flood = false)}
+          >
             <span className="eyebrow">{hero.next.label}</span>
             <span className="hero__next-line" />
             <strong>{hero.next.title}</strong>
@@ -169,10 +172,11 @@ export default function Hero() {
           </a>
           <button
             type="button"
-            className={`hero__lock ${locked ? 'is-locked' : ''}`}
+            className={`hero__lock ${locked ? 'is-on' : ''}`}
             onClick={() => setLocked((v) => !v)}
           >
-            {locked ? 'العودة للتمرير' : 'اضغط للتفاعل'}
+            <span className="hero__lock-ico" />
+            <span className="eyebrow">{locked ? 'رجوع للتمرير' : 'المس للتحكم'}</span>
           </button>
           <p className="eyebrow hero__since">{site.since}</p>
         </div>

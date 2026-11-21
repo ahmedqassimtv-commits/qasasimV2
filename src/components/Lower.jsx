@@ -173,21 +173,6 @@ export function Footer() {
     return () => stop()
   }, { scope: root })
 
-  const jump = (href) => (e) => {
-    if (!href.startsWith('#')) return
-    e.preventDefault()
-    if (href === '#') {
-      if (scroll.lenis) scroll.lenis.scrollTo(0, { duration: 1.2 })
-      else window.scrollTo({ top: 0, behavior: 'smooth' })
-    } else {
-      const el = document.querySelector(href)
-      if (el) {
-        if (scroll.lenis) scroll.lenis.scrollTo(el, { duration: 1.2 })
-        else el.scrollIntoView({ behavior: 'smooth' })
-      }
-    }
-  }
-
   const chips = [...socials.map((s) => s.label), 'مراجعات', 'حكايات', 'مقالات', 'شورتس', 'قاسمز']
 
   return (
@@ -214,7 +199,7 @@ export function Footer() {
             <div className="ft__col ft__col--pages">
               <p className="eyebrow" data-hl>الصفحات</p>
               {nav.slice(0, 4).map((n) => (
-                <a key={n.label} href={n.href} className="tlink" data-roll onClick={jump(n.href)}>
+                <a key={n.label} href={n.href} className="tlink" data-roll>
                   <Roll>{n.label}</Roll>
                 </a>
               ))}

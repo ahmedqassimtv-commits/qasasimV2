@@ -2,6 +2,7 @@
  * HeroGL — تأثير الكشف السائل في الـ Hero (WebGL2 بدون مكتبات)
  * - صورتان: A (الصورة الأساسية) و B (بالنظارة والكاب)
  * - حركة الماوس ترسم "أثر" سائل في ping-pong FBO مع تلاشي مستقل عن معدل الإطارات (dt-independent)
+ * - دعم this.flood عند الوقوف على صندوق «أحدث فيديو» لكشف النظارة والكاب بالكامل
  * - تم إصلاح الاهتزاز وتشويه الحواف، والظل يتبع الصورتين معاً، مع تنظيف كامل لذاكرة GPU
  */
 
@@ -25,7 +26,6 @@ float snoise(vec2 v){
   vec3 g; g.x=a0.x*x0.x+h.x*x0.y; g.yz=a0.yz*x12.xz+h.yz*x12.yw; return 130.*dot(m,g);
 }`
 
-// محاكاة الأثر: تلاشي ناعم مستقل عن الـ FPS + تموّج عضوي + رسم مقطع ناعم بين الموضع السابق والحالي
 const TRAIL = `#version 300 es
 precision highp float;
 in vec2 vUv; out vec4 o;
@@ -52,7 +52,6 @@ uniform sampler2D uA; uniform sampler2D uB; uniform sampler2D uTrail;
 uniform vec2 uRes; uniform vec2 uResA; uniform float uTime; uniform float uGrey;
 uniform float uFit; uniform float uFitM; uniform vec3 uBlob; uniform float uBlobA; uniform float uDark;
 ${NOISE}
-// الشخص بارتفاع = نسبة من الشاشة ومحاذي للأسفل (نفس معادلة wire.js بالظبط)
 vec4 place(sampler2D t, vec2 px){
   float fit = uRes.x < uRes.y ? uFitM : uFit;
   float s = (uRes.y*fit)/uResA.y;
@@ -66,7 +65,6 @@ void main(){
   vec2 px1 = 1./uRes;
   float t = texture(uTrail, vUv).r;
   float asp = uRes.x/uRes.y;
-  // حافة سائلة عضوية ناعمة بدون تكسير أو اهتزاز
   float n = snoise(vUv*vec2(asp,1.)*2.9 + uTime*.22)*.5+.5;
   float n2 = snoise(vUv*vec2(asp,1.)*6.5 - uTime*.32)*.5+.5;
   float f = t + (n*.72 + n2*.28 - .5) * .26 * smoothstep(0., .45, t);
@@ -78,14 +76,12 @@ void main(){
   vec2 px = vec2(vUv.x, 1.-vUv.y)*uRes;
 
   vec4 a = place(uA, px);
-  // انكسار خفيف وناعم جداً عند الحافة السائلة بدون رجفة
   vec4 b = place(uB, px + vec2(tx,-ty)*uRes*.0045*edge);
 
   float ba = uBlobA * (1. - b.a);
   vec4 pb = vec4(b.rgb + uBlob*ba, b.a + ba);
   vec4 c = mix(a, pb, m);
 
-  // ظل ناعم زيتوني يحضن الصورتين (بما فيها الكاب عند ظهوره) بدون حافة مقصوصة
   float sh = 0.;
   for(int i=0;i<8;i++){
     float an = float(i)*0.7854;
@@ -132,7 +128,7 @@ export default class HeroGL {
     this.gl = canvas.getContext('webgl2', { antialias: false, alpha: true, premultipliedAlpha: true })
     if (!this.gl) { this.failed = true; return }
     this.radius = radius
-    this.fit = fit; this.fitM = fitM; this.dark = 0
+    this.fit = fit; this.fitM = fitM; this.dark = 0; this.flood = false
     this.touch = window.matchMedia('(pointer: coarse)').matches
     this.ghost = { on: true, t: 0, idle: 3, boost: 0 }
     this.grey = 0
@@ -207,7 +203,6 @@ export default class HeroGL {
     const dpr = Math.min(window.devicePixelRatio || 1, 1.75)
     const w = Math.max(1, Math.round(this.canvas.clientWidth * dpr))
     const h = Math.max(1, Math.round(this.canvas.clientHeight * dpr))
-    // تجنب إعادة إنشاء الـ FBO عند تغييرات فرعية بسيطة (يمنع الوميض وتقطع الأثر)
     if (this.w && Math.abs(w - this.w) <= 4 && Math.abs(h - this.h) <= 4) return
     this.w = w; this.h = h
     this.canvas.width = w; this.canvas.height = h
@@ -231,13 +226,11 @@ export default class HeroGL {
   onTouch(e) { const t = e.touches[0]; if (t) this.point(t.clientX, t.clientY) }
   onTouchEnd() { this.mouse.in = false }
 
-  // مركز منطقة النظارة والكاب بالظبط (من قياس hero-2.webp: النظارة عند y=0.415 من فوق = 0.585 من تحت)
   face() {
     const fit = this.w < this.h ? this.fitM : this.fit
     return { x: 0.5, y: fit * 0.585, rx: Math.min(0.18, (fit * this.h * 0.28) / this.w), ry: fit * 0.16 }
   }
 
-  // دفعة حركة ناعمة بعد شاشة التحميل تكشف النظارة والكاب
   intro() { this.ghost.idle = 10; this.ghost.boost = 1.4; this.ghost.t = 0 }
 
   loop(now) {
@@ -247,7 +240,6 @@ export default class HeroGL {
     const dt = Math.min(Math.max((now - (this.last || now)) / 1000, 0.001), 0.05); this.last = now
     this.time += dt
 
-    // مؤشر وهمي يتحرك بنعومة حول منطقة النظارة والكاب لما الماوس يقف
     const gh = this.ghost
     gh.idle += dt
     gh.boost = Math.max(0, gh.boost - dt)
@@ -261,14 +253,20 @@ export default class HeroGL {
       if (!m.ghostIn) { m.x = m.px = m.tx; m.y = m.py = m.ty; m.ghostIn = true }
     } else m.ghostIn = false
 
-    const active = m.in || useGhost
+    // flood: الماوس على صندوق «أحدث فيديو» يكشف النظارة والكاب على الوش كله
+    if (this.flood) {
+      const f = this.face()
+      m.tx = f.x + Math.sin(this.time * 2.1) * f.rx * 0.32
+      m.ty = f.y + Math.cos(this.time * 1.6) * f.ry * 0.28
+    }
+
+    const active = m.in || useGhost || this.flood
     const lerp = 1 - Math.pow(0.0008, dt)
     m.px = m.x; m.py = m.y
     m.x += (m.tx - m.x) * lerp; m.y += (m.ty - m.y) * lerp
     const v = Math.hypot(m.x - m.px, m.y - m.py) / (dt * 60)
     m.speed += (Math.min(v * 38, 1) - m.speed) * 0.14
 
-    // 1) trail pass
     gl.useProgram(this.trailP.p)
     const u = this.trailP.u
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.pong.f)
@@ -276,8 +274,8 @@ export default class HeroGL {
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, this.ping.t)
     gl.uniform1i(u.uPrev, 0)
     gl.uniform2f(u.uA, m.px, m.py); gl.uniform2f(u.uB, m.x, m.y)
-    gl.uniform1f(u.uR, this.radius * (0.78 + m.speed * 0.55))
-    gl.uniform1f(u.uStrength, active ? (useGhost ? 0.15 + gh.boost * 0.1 : 0.22) + m.speed * 0.55 : 0)
+    gl.uniform1f(u.uR, this.radius * (0.78 + m.speed * 0.55) * (this.flood ? 2.5 : 1))
+    gl.uniform1f(u.uStrength, this.flood ? 0.5 : active ? (useGhost ? 0.15 + gh.boost * 0.1 : 0.22) + m.speed * 0.55 : 0)
     gl.uniform1f(u.uAspect, this.w / this.h)
     gl.uniform1f(u.uTime, this.time)
     gl.uniform1f(u.uDecay, 0.986)
@@ -285,7 +283,6 @@ export default class HeroGL {
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
     ;[this.ping, this.pong] = [this.pong, this.ping]
 
-    // 2) display pass
     gl.useProgram(this.dispP.p)
     const d = this.dispP.u
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)

@@ -246,16 +246,34 @@ section { position: relative; }
 
 /* زر التفاعل على الموبايل (مثل tap to lock / back to scroll في landonorris.com) */
 .hero__lock {
-  display: none; position: absolute; left: 50%; bottom: var(--pad); translate: -50% 0;
-  padding: 0.55rem 1rem; border-radius: 999px; border: 1.5px solid rgba(40, 44, 32, 0.45);
-  background: rgba(244, 244, 237, 0.85); color: var(--dark);
-  font-family: var(--display); font-weight: 800; font-size: 0.82rem; backdrop-filter: blur(6px);
-  transition: background 0.3s, color 0.3s, border-color 0.3s;
+  display: none; position: absolute; top: 50%; inset-inline-start: var(--pad); translate: 0 -50%;
+  flex-direction: column; align-items: center; gap: 0.45rem; color: var(--dark);
 }
-.hero__lock.is-locked { background: var(--lime); border-color: var(--dark); }
-@media (pointer: coarse), (max-width: 767px) {
-  .hero__lock { display: inline-flex; align-items: center; }
+.hero__lock-ico {
+  width: 2.6rem; height: 2.6rem; border-radius: 50%; border: 1.5px solid currentColor;
+  display: grid; place-items: center; position: relative; background: rgba(244, 244, 237, 0.72);
+  backdrop-filter: blur(4px); transition: background 0.3s, border-color 0.3s;
 }
+.hero__lock-ico::after {
+  content: ''; width: 0.7rem; height: 0.7rem; border-radius: 50%; background: currentColor;
+  transition: transform 0.4s var(--ease);
+}
+.hero__lock.is-on .hero__lock-ico { background: var(--lime); border-color: var(--lime); }
+.hero__lock.is-on .hero__lock-ico::after { transform: scale(1.55); }
+@media (pointer: coarse) { .hero__lock { display: flex; } }
+.hero-locked .hero__stage { touch-action: none; }
+
+/* ============ إضافات الخلطة السرية (Extras.jsx + velocity.js) ============ */
+.wipe { position: fixed; inset: 0; z-index: 260; background: var(--lime); color: var(--dark); display: grid; place-items: center; visibility: hidden; }
+.wipe .logomark { width: clamp(84px, 8vw, 130px); }
+.progress { position: fixed; top: 0; bottom: 0; inset-inline-end: 0; width: 3px; z-index: 90; pointer-events: none; }
+.progress i { position: absolute; inset: 0; background: var(--lime); transform: scaleY(0); transform-origin: top; }
+.trk__img { transform: skewX(calc(var(--vel, 0) * -7deg)); }
+.trk__img img { scale: calc(1 + var(--velA, 0) * 0.1); }
+.vd__thumb, .ar__thumb, .so__in, .hall__feat img { will-change: transform; }
+.hall__feat img { scale: calc(1 + var(--velA, 0) * 0.12); }
+.hc__img { translate: 0 calc(var(--vel, 0) * -14px); }
+.vd__feat img { filter: blur(calc(var(--velA, 0) * 2.5px)); }
 
 /* ============ Message ============ */
 .msg { padding: 18vh var(--pad) 20vh; text-align: center; display: grid; justify-items: center; gap: 1.6rem; }

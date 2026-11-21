@@ -14,7 +14,6 @@ const menuImgs = [
   hall.items[4]?.img || track.items[3]?.src,
 ].filter(Boolean)
 
-// ألوان الشريط لكل نوع خلفية
 const THEMES = {
   dark: { '--nf': '#f4f4ed', '--nm': '#d2ff00', '--hb': '#f4f4ed', '--hbd': 'rgba(40,44,32,0)' },
   light: { '--nf': '#282c20', '--nm': '#282c20', '--hb': 'rgba(244,244,237,0)', '--hbd': 'rgba(40,44,32,1)' },
@@ -35,7 +34,12 @@ export default function Nav({ ready }) {
       .fromTo('.menu__img', { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.95, stagger: 0.07 }, 0.28)
       .fromTo('.menu__link > span:first-child', { yPercent: 115 }, { yPercent: 0, duration: 0.85, stagger: 0.06, ease: 'expo.out' }, 0.4)
       .fromTo('.menu__brand, .menu__foot > *', { y: 20, autoAlpha: 0 }, { y: 0, autoAlpha: 1, stagger: 0.06, duration: 0.55, ease: 'power3.out' }, 0.7)
-      .fromTo('.menu__strike path', { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.65, ease: 'power2.inOut' }, 0.92)
+      .fromTo('.menu__strike path', { strokeDashoffset: 1.1 }, { strokeDashoffset: 0, duration: 0.65, ease: 'power2.inOut' }, 0.92)
+
+    // دخول الشريط العلوي بعد شاشة التحميل
+    const enter = () => gsap.fromTo('.nav > *', { yPercent: -160, autoAlpha: 0 },
+      { yPercent: 0, autoAlpha: 1, stagger: 0.09, duration: 1.1, ease: 'expo.out', delay: 0.7 })
+    window.addEventListener('preloader:out', enter, { once: true })
 
     // حركة الخلفية الكنتورية داخل القائمة
     gsap.to('.menu__bg-topo', { xPercent: -3, yPercent: 2.5, rotate: 1.2, duration: 20, ease: 'sine.inOut', repeat: -1, yoyo: true })
@@ -50,7 +54,10 @@ export default function Nav({ ready }) {
       mv[1]?.(k * 46)
     }
     window.addEventListener('pointermove', onMove, { passive: true })
-    return () => window.removeEventListener('pointermove', onMove)
+    return () => {
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('preloader:out', enter)
+    }
   }, { scope: root })
 
   useEffect(() => {
@@ -61,7 +68,6 @@ export default function Nav({ ready }) {
     root.current.classList.toggle('is-open', open)
   }, [open, ready])
 
-  // إغلاق القائمة بزر Escape
   useEffect(() => {
     if (!open) return
     const onKey = (e) => { if (e.key === 'Escape') setOpen(false) }
@@ -69,7 +75,6 @@ export default function Nav({ ready }) {
     return () => window.removeEventListener('keydown', onKey)
   }, [open])
 
-  // تتبع القسم الحالي في الصفحة لتحديث الخط الليموني المتموج (is-current) وتغيير لون النافبار
   useEffect(() => {
     if (!ready) return
     const marks = gsap.utils.toArray('[data-nav]')
@@ -83,7 +88,6 @@ export default function Nav({ ready }) {
       }).scrollTrigger
     })
 
-    // تحديث الرابط النشط في القائمة حسب موقع التمرير
     const secTriggers = nav.map((item, idx) => {
       if (!item.href || item.href === '#') {
         return ScrollTrigger.create({
@@ -110,31 +114,11 @@ export default function Nav({ ready }) {
     }
   }, [ready])
 
-  // تنقل سلس عبر Lenis عند الضغط على رابط داخلي من القائمة
-  const go = (href, idx) => (e) => {
-    e.preventDefault()
-    setCurrent(idx)
-    setOpen(false)
-    setTimeout(() => {
-      scroll.lenis?.start()
-      if (href === '#') {
-        if (scroll.lenis) scroll.lenis.scrollTo(0, { duration: 1.2 })
-        else window.scrollTo({ top: 0, behavior: 'smooth' })
-      } else {
-        const el = document.querySelector(href)
-        if (el) {
-          if (scroll.lenis) scroll.lenis.scrollTo(el, { duration: 1.2 })
-          else el.scrollIntoView({ behavior: 'smooth' })
-        }
-      }
-    }, 320)
-  }
-
   return (
     <div className="navw" ref={root}>
       <header className="nav">
-        <a href="#" className="nav__brand" aria-label="الرئيسية" onClick={go('#', 0)}><NameLockup withMark={false} /></a>
-        <a href="#" className="nav__mid" aria-label="قاسمز" onClick={go('#', 0)}><LogoMark /></a>
+        <a href="#" className="nav__brand" aria-label="الرئيسية" onClick={() => setOpen(false)}><NameLockup withMark={false} /></a>
+        <a href="#" className="nav__mid" aria-label="قاسمز" onClick={() => setOpen(false)}><LogoMark /></a>
         <div className="nav__btns">
           <Btn href={site.youtube} target="_blank" rel="noreferrer" icon={<PlayIcon />} className="btn--nav">يوتيوب</Btn>
           <button className={`ham ${open ? 'is-open' : ''}`} onClick={() => setOpen(!open)} aria-label="القائمة" aria-expanded={open}>
@@ -148,7 +132,6 @@ export default function Nav({ ready }) {
           <div className="menu__bg-topo" />
         </div>
         <div className="menu__grid" dir="ltr">
-          {/* الشمال: عمودين صور 2×2 بالظبط مثل landonorris.com (العمود الأيمن يبدأ من أعلى الحافة) */}
           <div className="menu__imgs">
             {[0, 1].map((c) => (
               <div className={`menu__col menu__col--${c}`} key={c}>
@@ -165,7 +148,6 @@ export default function Nav({ ready }) {
             ))}
           </div>
 
-          {/* اليمين: الروابط الكبيرة + الشعار + التعاون والسوشيال أسفل الشاشة */}
           <div className="menu__side" dir="rtl">
             <nav className="menu__links">
               {nav.map((n, i) => (
@@ -174,12 +156,12 @@ export default function Nav({ ready }) {
                   href={n.href}
                   className={`menu__link ${i === current ? 'is-current' : ''} ${i === active && i !== current ? 'is-hover' : ''}`}
                   onMouseEnter={() => setActive(i)}
-                  onClick={go(n.href, i)}
+                  onClick={() => { setCurrent(i); setOpen(false) }}
                 >
                   <span>{n.label}</span>
                   {i === current && (
                     <svg className="menu__strike" viewBox="0 0 200 22" preserveAspectRatio="none" aria-hidden>
-                      <path d="M2 11C20 4 36 4 54 11S88 18 106 11 140 4 158 11 182 18 198 11" pathLength="1" strokeDasharray="1" />
+                      <path d="M2 11C20 4 36 4 54 11S88 18 106 11 140 4 158 11 182 18 198 11" pathLength="1" strokeDasharray="1 1.5" strokeDashoffset="1.1" />
                     </svg>
                   )}
                 </a>
