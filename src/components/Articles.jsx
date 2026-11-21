@@ -22,14 +22,15 @@ export default function Articles() {
         scrollTrigger: { trigger: row, start: 'top 92%' },
       })
     })
-    // معاينة الصورة بتمشي ورا الماوس بنعومة
+    const list = root.current.querySelector('.ar__list')
     const xTo = gsap.quickTo(prev.current, 'x', { duration: 0.6, ease: 'power3' })
     const yTo = gsap.quickTo(prev.current, 'y', { duration: 0.6, ease: 'power3' })
     const move = (e) => {
-      const r = root.current.querySelector('.ar__list').getBoundingClientRect()
+      const r = list.getBoundingClientRect()
       xTo(e.clientX - r.left); yTo(e.clientY - r.top)
     }
-    root.current.querySelector('.ar__list').addEventListener('pointermove', move)
+    list.addEventListener('pointermove', move, { passive: true })
+    return () => list.removeEventListener('pointermove', move)
   }, { scope: root })
 
   const cur = articles.items[active]
@@ -39,7 +40,10 @@ export default function Articles() {
       <header className="ar__head">
         <div>
           <p className="eyebrow" data-hl>{articles.eyebrow}</p>
-          <h3 className="ar__title" data-hl><span>{articles.title[0]}</span><span className="serif">{articles.title[1]}</span></h3>
+          <h3 className="ar__title" data-hl>
+            <span className="t-bold">{articles.title[0]}</span>
+            <span className="serif">{articles.title[1]}</span>
+          </h3>
         </div>
         <p className="ar__intro" data-hl>{articles.intro}</p>
       </header>

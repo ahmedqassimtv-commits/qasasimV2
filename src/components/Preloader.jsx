@@ -10,13 +10,21 @@ const loadImg = (src) => new Promise((r) => { const i = new Image(); i.onload = 
 /**
  * شاشة التحميل (زي الأصلي):
  * 1) خلفية ليمونية، قطع الشعار بتظهر وتختفي قطعة قطعة في لوب لحد ما الموقع يحمّل.
- * 2) أول ما يجهز: الشعار بيكمل، وبعدين يتحول لـ«شباك» شفاف ويعمل زووم لحد ما يفتح على الموقع.
+ * 2) أول ما يجهز (أو عند الضغط على زر LOAD QASSIM): الشعار بيكمل ويتحول لـ«شباك» شفاف ويعمل زووم يفتح على الموقع.
+ * 3) تحترم prefers-reduced-motion وتفتح فوراً بدون إزعاج.
  */
 export default function Preloader({ onDone }) {
   const root = useRef(null)
-  const state = useRef({ ready: false })
+  const state = useRef({ ready: false, exiting: false, exitFn: null })
 
   useGSAP(() => {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduced) {
+      window.dispatchEvent(new Event('preloader:out'))
+      onDone()
+      return
+    }
+
     const pieces = gsap.utils.toArray('.pre__logo .lm-p')
     const rnd = gsap.utils.random(-50, 50, 1, true)
     gsap.set(pieces, { transformOrigin: '50% 50%', scale: 0 })
@@ -33,27 +41,27 @@ export default function Preloader({ onDone }) {
     }
 
     const exit = () => {
+      if (state.current.exiting) return
+      state.current.exiting = true
       loop.pause()
       place()
       const z = { v: 1 }
       gsap.timeline({ onComplete: onDone })
-        // الشعار بيكمل كله ويعمل نبضة
         .to(pieces, { scale: 1, rotate: 0, duration: 0.35, ease: 'back.out(2)', stagger: 0.03 })
         .to('.pre__logo', { scale: 1.08, duration: 0.18, ease: 'power2.out' })
         .to('.pre__logo', { scale: 1, duration: 0.25, ease: 'power2.inOut' })
         .to('.pre__btn', { autoAlpha: 0, y: 10, duration: 0.3 }, '<')
-        // يتحول لشباك: الليموني بيبقى ماسك والشعار فتحة بيبان منها الموقع
         .set('.pre__fill', { autoAlpha: 0 })
         .set(svg, { autoAlpha: 1 })
         .set('.pre__logo', { autoAlpha: 0 })
         .add(() => window.dispatchEvent(new Event('preloader:out')))
-        // زووم من جوه الشعار لحد ما يفتح على الشاشة كلها
         .to(z, {
           v: 260, duration: 1.25, ease: 'expo.in',
           onUpdate: () => zoom.setAttribute('transform', `scale(${z.v})`),
         })
         .to(svg, { autoAlpha: 0, duration: 0.15 })
     }
+    state.current.exitFn = exit
 
     const loop = gsap.timeline({ repeat: -1, delay: 0.2 })
       .fromTo(pieces, { scale: 0, rotate: () => rnd() },
@@ -62,16 +70,20 @@ export default function Preloader({ onDone }) {
       .to(pieces, { scale: 0, rotate: () => rnd(), duration: 0.34, ease: 'back.in(2)', stagger: 0.09 }, '+=0.25')
       .to({}, { duration: 0.12 })
 
-    const minTime = new Promise((r) => setTimeout(r, 1800))
+    const minTime = new Promise((r) => setTimeout(r, 1500))
     const loaded = new Promise((r) => (document.readyState === 'complete' ? r() : window.addEventListener('load', r, { once: true })))
     Promise.all([minTime, loaded, document.fonts?.ready, loadImg(hero.imageA), loadImg(hero.imageB)])
       .then(() => { state.current.ready = true })
   }, { scope: root })
 
+  const skip = () => {
+    state.current.ready = true
+    state.current.exitFn?.()
+  }
+
   return (
     <div className="pre" ref={root}>
       <div className="pre__fill" />
-      {/* الماسك: ليموني في كل حتة ما عدا شكل الشعار */}
       <svg className="pre__mask" aria-hidden>
         <defs>
           <mask id="preHole" maskUnits="userSpaceOnUse" x="-50000" y="-50000" width="100000" height="100000">
@@ -84,7 +96,7 @@ export default function Preloader({ onDone }) {
         <rect x="-50000" y="-50000" width="100000" height="100000" fill="#d2ff00" mask="url(#preHole)" />
       </svg>
       <LogoMark className="pre__logo" />
-      <button className="pre__btn" data-roll onClick={() => { state.current.ready = true }}>
+      <button className="pre__btn" data-roll onClick={skip}>
         <Roll>{site.loadLabel}</Roll>
       </button>
     </div>

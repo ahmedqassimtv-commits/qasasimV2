@@ -63,17 +63,17 @@ export const track = {
 }
 
 export const onoff = [
-  // side: صورة مقصوصة (PNG/WebP شفاف) — الصورتين بيبصّوا لبعض «وش في وش»
-  // مؤقتاً صورتين الهيرو لحد ما توصل الصور الجديدة (بروفايل جانبي لكل ناحية)
+  // side: صور البروفايل الجانبية المقصوصة (وش في وش)
+  // side-1 (بدون كاب، باصص شمال) على الحافة اليمين — side-2 (بالكاب والنظارة، باصص يمين) على الحافة الشمال
   {
     id: 'on-air', top: 'على', bottom: 'الهواء', script: 'على',
     text: 'أحدث الفيديوهات، أرقام القناة، وصور من الاستوديو.',
-    side: asset('images/hero-2.webp'), flip: false,
+    side: asset('images/side-1.webp'), flip: false,
   },
   {
     id: 'backstage', top: 'خلف', bottom: 'الكواليس', script: 'خلف',
     text: 'تصوير، حملات، وكل اللي بيحصل قبل وبعد الكاميرا.',
-    side: asset('images/hero-1.webp'), flip: false,
+    side: asset('images/side-2.webp'), flip: false,
   },
 ]
 

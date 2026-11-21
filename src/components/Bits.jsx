@@ -38,9 +38,6 @@ export function Roll({ children, className = '' }) {
   )
 }
 
-export const BagIcon = () => (
-  <svg viewBox="0 0 17 18" fill="none" className="ico"><path d="M3 6h11l-1 10.5H4L3 6Zm2.5 0V4.5a3 3 0 0 1 6 0V6" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" /></svg>
-)
 export const PlayIcon = () => (
   <svg viewBox="0 0 20 20" className="ico" fill="currentColor"><path d="M6 4.2v11.6a.8.8 0 0 0 1.2.7l9.3-5.8a.8.8 0 0 0 0-1.4L7.2 3.5A.8.8 0 0 0 6 4.2Z" /></svg>
 )

@@ -94,6 +94,13 @@ export function initReveal(scope = document) {
   let to
   const onResize = () => { clearTimeout(to); to = setTimeout(() => items.forEach(build), 250) }
   window.addEventListener('resize', onResize)
-  kill.push(() => window.removeEventListener('resize', onResize))
+  kill.push(() => {
+    clearTimeout(to)
+    window.removeEventListener('resize', onResize)
+    items.forEach((el) => {
+      el.__hlSt?.kill()
+      el.__hlTl?.kill()
+    })
+  })
   return () => kill.forEach((k) => k())
 }

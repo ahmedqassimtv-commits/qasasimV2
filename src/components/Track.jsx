@@ -42,8 +42,10 @@ export default function Track() {
           toggleClass: { targets: el, className: 'is-lit' },
         })
       })
+      return () => { revealCtx.ca = null }
     })
     mm.add('(max-width: 767px)', () => {
+      revealCtx.ca = null
       const qs = root.current.querySelector('.trk__sig')
       if (qs) {
         const t = drawSignature(qs, { duration: 1.3, ease: 'power1.inOut' }).pause()
