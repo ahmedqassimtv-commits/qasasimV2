@@ -1,0 +1,28 @@
+name: Preview screenshots
+
+on:
+  push:
+    branches: [shots]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      - run: npm run build
+      - run: npm install --no-save playwright@1 && npx playwright install --with-deps chromium
+      - run: (npx vite preview --port 4173 --strictPort &) && sleep 4 && node .github/scripts/shots.mjs
+      - name: Push screenshots to branch shots-out
+        run: |
+          mkdir /tmp/o && cp -r shots/* /tmp/o/
+          git config user.name "shots-bot" && git config user.email "shots@users.noreply.github.com"
+          git checkout --orphan shots-out && git rm -rfq . && rm -rf node_modules dist shots
+          cp -r /tmp/o/* . && git add -A && git commit -qm "screenshots ${GITHUB_SHA}" && git push -f origin shots-out
