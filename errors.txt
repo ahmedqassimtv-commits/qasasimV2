@@ -1,0 +1,20 @@
+d console.error: Failed to load resource: the server responded with a status of 404 ()
+d console.warning: GSAP target .hero__stage not found. https://gsap.com
+d console.warning: GSAP target  not found. https://gsap.com
+d console.warning: GSAP target .hero__topo not found. https://gsap.com
+d console.warning: GSAP target  not found. https://gsap.com
+d console.warning: GSAP target .hero__ui > * not found. https://gsap.com
+d console.warning: GSAP target  not found. https://gsap.com
+d console.warning: GSAP target  not found. https://gsap.com
+d console.warning: GSAP target  not found. https://gsap.com
+snap failed shots/d-06.jpg: page.screenshot: Timeout 90000ms exceeded.
+m console.error: Failed to load resource: the server responded with a status of 404 ()
+m console.warning: GSAP target .hero__stage not found. https://gsap.com
+m console.warning: GSAP target  not found. https://gsap.com
+m console.warning: GSAP target .hero__topo not found. https://gsap.com
+m console.warning: GSAP target  not found. https://gsap.com
+m console.warning: GSAP target .hero__ui > * not found. https://gsap.com
+m console.warning: GSAP target  not found. https://gsap.com
+m console.warning: GSAP target  not found. https://gsap.com
+m console.warning: GSAP target  not found. https://gsap.com
+snap failed shots/m-10.jpg: page.screenshot: Timeout 90000ms exceeded.
