@@ -28,14 +28,19 @@ export default function Nav({ ready }) {
       .fromTo('.menu__img', { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1, stagger: 0.06 }, 0.3)
       .fromTo('.menu__link > span:first-child', { yPercent: 115 }, { yPercent: 0, duration: 0.9, stagger: 0.07, ease: 'expo.out' }, 0.45)
       .fromTo('.menu__brand, .menu__foot > *', { y: 20, autoAlpha: 0 }, { y: 0, autoAlpha: 1, stagger: 0.06, duration: 0.6, ease: 'power3.out' }, 0.75)
-      .fromTo('.menu__strike path', { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.7, ease: 'power2.inOut' }, 1)
+      .fromTo('.menu__strike path', { strokeDashoffset: 1.1 }, { strokeDashoffset: 0, duration: 0.7, ease: 'power2.inOut' }, 1)
+
+    // دخول الشريط بعد شاشة التحميل: الاسم والأزرار بينزلوا من فوق واحد ورا التاني
+    const enter = () => gsap.fromTo('.nav > *', { yPercent: -160, autoAlpha: 0 },
+      { yPercent: 0, autoAlpha: 1, stagger: 0.09, duration: 1.1, ease: 'expo.out', delay: 0.7 })
+    window.addEventListener('preloader:out', enter, { once: true })
 
     // العمودين بيتحركوا عكس بعض مع الماوس (parallax خفيف)
     const cols = gsap.utils.toArray('.menu__col')
     const mv = cols.map((c) => gsap.quickTo(c, 'y', { duration: 1.4, ease: 'power3' }))
     const onMove = (e) => { const k = e.clientY / innerHeight - 0.5; mv[0]?.(k * -60); mv[1]?.(k * 60) }
     window.addEventListener('pointermove', onMove, { passive: true })
-    return () => window.removeEventListener('pointermove', onMove)
+    return () => { window.removeEventListener('pointermove', onMove); window.removeEventListener('preloader:out', enter) }
   }, { scope: root })
 
   useEffect(() => {
@@ -108,7 +113,7 @@ export default function Nav({ ready }) {
                   <span>{n.label}</span>
                   {i === 0 && (
                     <svg className="menu__strike" viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden>
-                      <path d="M0 9C18 3 30 3 46 9S78 15 96 9 128 3 146 9 182 15 200 9" pathLength="1" strokeDasharray="1" />
+                      <path d="M0 9C18 3 30 3 46 9S78 15 96 9 128 3 146 9 182 15 200 9" pathLength="1" strokeDasharray="1 1.5" strokeDashoffset="1.1" />
                     </svg>
                   )}
                 </a>

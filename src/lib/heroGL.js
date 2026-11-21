@@ -240,7 +240,13 @@ export default class HeroGL {
       m.ty = f.y + Math.sin(k * 1.9 + 1.2) * f.ry + Math.cos(k * 3.7) * f.ry * 0.25
       if (!m.ghostIn) { m.x = m.px = m.tx; m.y = m.py = m.ty; m.ghostIn = true }
     } else m.ghostIn = false
-    const active = m.in || useGhost
+    // flood: الماوس على صندوق «أحدث فيديو» → الصورة التانية تملى الوش كله (زي data-gl-helmet في الأصلي)
+    if (this.flood) {
+      const f = this.face()
+      m.tx = f.x + Math.sin(this.time * 2.2) * f.rx * 0.35
+      m.ty = f.y + Math.cos(this.time * 1.7) * f.ry * 0.3
+    }
+    const active = m.in || useGhost || this.flood
     m.px = m.x; m.py = m.y
     m.x += (m.tx - m.x) * 0.22; m.y += (m.ty - m.y) * 0.22
     const v = Math.hypot(m.x - m.px, m.y - m.py)
@@ -254,8 +260,8 @@ export default class HeroGL {
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, this.ping.t)
     gl.uniform1i(u.uPrev, 0)
     gl.uniform2f(u.uA, m.px, m.py); gl.uniform2f(u.uB, m.x, m.y)
-    gl.uniform1f(u.uR, this.radius * (0.75 + m.speed * 0.6))
-    gl.uniform1f(u.uStrength, active ? (useGhost ? 0.16 + gh.boost * 0.12 : 0.22) + m.speed * 0.6 : 0)
+    gl.uniform1f(u.uR, this.radius * (0.75 + m.speed * 0.6) * (this.flood ? 2.6 : 1))
+    gl.uniform1f(u.uStrength, this.flood ? 0.5 : active ? (useGhost ? 0.16 + gh.boost * 0.12 : 0.22) + m.speed * 0.6 : 0)
     gl.uniform1f(u.uAspect, this.w / this.h)
     gl.uniform1f(u.uTime, this.time)
     gl.uniform1f(u.uDecay, 0.988)

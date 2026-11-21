@@ -438,6 +438,29 @@ section { position: relative; }
   .ft__bar { justify-content: center; text-align: center; }
 }
 
+/* ============ إضافات الخلطة السرية ============ */
+/* شاشة الانتقال بين الأقسام */
+.wipe { position: fixed; inset: 0; z-index: 260; background: var(--lime); color: var(--dark); display: grid; place-items: center; visibility: hidden; }
+.wipe .logomark { width: clamp(84px, 8vw, 130px); }
+/* مؤشر تقدّم التمرير */
+.progress { position: fixed; top: 0; bottom: 0; inset-inline-end: 0; width: 3px; z-index: 90; pointer-events: none; }
+.progress i { position: absolute; inset: 0; background: var(--lime); transform: scaleY(0); transform-origin: top; }
+/* صور بتتمط وتميل مع سرعة السكرول (زي الـ WebGL carousel في الأصلي) */
+.trk__img { transform: skewX(calc(var(--vel, 0) * -7deg)); }
+.trk__img img { scale: calc(1 + var(--velA, 0) * 0.1); }
+.vd__thumb, .ar__thumb, .so__in, .hall__feat img, .st__p { will-change: transform; }
+.hall__feat img { scale: calc(1 + var(--velA, 0) * 0.12); }
+.hc__img { translate: 0 calc(var(--vel, 0) * -14px); }
+.vd__feat img { filter: blur(calc(var(--velA, 0) * 3px)); }
+/* موبايل: زر «المس للتحكم» */
+.hero__lock { display: none; position: absolute; top: 50%; inset-inline-start: var(--pad); translate: 0 -50%; flex-direction: column; align-items: center; gap: 0.5rem; color: var(--dark); }
+.hero__lock-ico { width: 2.6rem; height: 2.6rem; border-radius: 50%; border: 1.5px solid currentColor; display: grid; place-items: center; position: relative; }
+.hero__lock-ico::after { content: ''; width: 0.7rem; height: 0.7rem; border-radius: 50%; background: currentColor; transition: transform 0.4s var(--ease); }
+.hero__lock.is-on .hero__lock-ico { background: var(--lime); border-color: var(--lime); }
+.hero__lock.is-on .hero__lock-ico::after { transform: scale(1.6); }
+@media (pointer: coarse) { .hero__lock { display: flex; } }
+.hero-locked .hero__stage { touch-action: none; }
+
 /* التوقيع */
 .sig { display: block; overflow: visible; stroke: var(--lime); }
 

@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { scroll } from '../hooks/useLenis'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import HeroGL from '../lib/heroGL'
@@ -24,6 +25,13 @@ export default function Hero() {
   const wireBack = useRef(null)
   const wireFront = useRef(null)
   const wire = useRef(null)
+  const [locked, setLocked] = useState(false)
+
+  // موبايل: «المس للتحكم» يوقف السكرول عشان الصباع يحرّك الكشف على الوش (زي Tap to lock في الأصلي)
+  useEffect(() => {
+    if (locked) scroll.lenis?.stop(); else scroll.lenis?.start()
+    document.documentElement.classList.toggle('hero-locked', locked)
+  }, [locked])
 
   useEffect(() => {
     gl.current = new HeroGL(canvas.current, { a: hero.imageA, b: hero.imageB, fit: 0.84, fitM: 0.56 })
@@ -125,13 +133,19 @@ export default function Hero() {
         </div>
 
         <div className="hero__ui">
-          <a href={hero.next.href} className="hero__next" target="_blank" rel="noreferrer">
+          <a href={hero.next.href} className="hero__next" target="_blank" rel="noreferrer"
+            onMouseEnter={() => gl.current && (gl.current.flood = true)}
+            onMouseLeave={() => gl.current && (gl.current.flood = false)}>
             <span className="eyebrow">{hero.next.label}</span>
             <span className="hero__next-line" />
             <strong>{hero.next.title}</strong>
             <span className="eyebrow eyebrow--lime">{hero.next.sub}</span>
           </a>
           <p className="eyebrow hero__since">{site.since}</p>
+          <button className={`hero__lock ${locked ? 'is-on' : ''}`} onClick={() => setLocked(!locked)}>
+            <span className="hero__lock-ico" />
+            <span className="eyebrow">{locked ? 'رجوع للتمرير' : 'المس للتحكم'}</span>
+          </button>
         </div>
       </div>
     </section>
