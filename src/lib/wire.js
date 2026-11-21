@@ -222,12 +222,12 @@ export default class Wire {
           ctx.lineWidth = pass === 0 ? 0.9 : 1.15
           ctx.strokeStyle = pass === 0
             ? `rgba(70, 76, 58, ${0.38 * this.show})`
-            : `rgba(40, 44, 32, ${0.52 * this.show})`
+            : `rgba(17, 18, 14, ${0.52 * this.show})`
         } else {
           ctx.lineWidth = 0.65
           ctx.strokeStyle = pass === 0
             ? `rgba(95, 100, 86, ${0.24 * this.show})`
-            : `rgba(40, 44, 32, ${0.22 * this.show})`
+            : `rgba(17, 18, 14, ${0.22 * this.show})`
         }
         ctx.stroke()
       }

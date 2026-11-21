@@ -88,7 +88,7 @@ export default function Hall() {
       <div className="hall__more">
         <LogoMark className="hall__more-logo" />
         <p data-hl>شوف حلقات أكتر ولقطات من الاستوديو</p>
-        <Btn href={channelVideosUrl} target="_blank" rel="noreferrer">كل الأعمال</Btn>
+        <Btn href={channelVideosUrl} target="_blank" rel="noreferrer">شوف كل الفيديوهات</Btn>
       </div>
     </section>
   )

@@ -200,7 +200,7 @@ export default class HeroGL {
   }
 
   resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.75)
+    const dpr = Math.min(window.devicePixelRatio || 1, 2)
     const w = Math.max(1, Math.round(this.canvas.clientWidth * dpr))
     const h = Math.max(1, Math.round(this.canvas.clientHeight * dpr))
     if (this.w && Math.abs(w - this.w) <= 4 && Math.abs(h - this.h) <= 4) return

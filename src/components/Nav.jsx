@@ -3,7 +3,7 @@ import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { LogoMark, NameLockup, Roll, Btn, PlayIcon } from './Bits'
-import { nav, site, socials, track, hall, hero } from '../data/content'
+import { site, socials, track, hall, hero } from '../data/content'
 import { scroll } from '../hooks/useLenis'
 
 // صور القائمة: 4 صور واضحة ومختلفة في عمودين (2×2 مثل تصميم landonorris.com بالظبط)
@@ -14,9 +14,17 @@ const menuImgs = [
   hall.items[4]?.img || track.items[3]?.src,
 ].filter(Boolean)
 
+// spec: 4 روابط بس في القائمة (قائمة الفوتر منفصلة في content.nav)
+const menuNav = [
+  { label: 'الرئيسية', href: '#' },
+  { label: 'الفيديوهات', href: '#videos' },
+  { label: 'عن القناة', href: '#about' },
+  { label: 'التعاونات', href: '#collabs' },
+]
+
 const THEMES = {
-  dark: { '--nf': '#f4f4ed', '--nm': '#d2ff00', '--hb': '#f4f4ed', '--hbd': 'rgba(40,44,32,0)' },
-  light: { '--nf': '#282c20', '--nm': '#282c20', '--hb': 'rgba(244,244,237,0)', '--hbd': 'rgba(40,44,32,1)' },
+  dark: { '--nf': '#f4f3ee', '--nm': '#d2ff00', '--hb': '#f4f3ee', '--hbd': 'rgba(17, 18, 14,0)' },
+  light: { '--nf': '#11120e', '--nm': '#11120e', '--hb': 'rgba(244, 243, 238,0)', '--hbd': 'rgba(17, 18, 14,1)' },
 }
 
 export default function Nav({ ready }) {
@@ -31,7 +39,7 @@ export default function Nav({ ready }) {
     tl.current = gsap.timeline({ paused: true, defaults: { ease: 'expo.inOut' } })
       .set('.menu', { autoAlpha: 1 })
       .fromTo('.menu__bg', { scaleY: 0 }, { scaleY: 1, duration: 0.85 })
-      .fromTo('.menu__img', { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.95, stagger: 0.07 }, 0.28)
+      .fromTo('.menu__img', { clipPath: 'inset(100% 0% 0% 0%)', y: 120 }, { clipPath: 'inset(0% 0% 0% 0%)', y: 0, duration: 1.05, stagger: 0.08 }, 0.28)
       .fromTo('.menu__link > span:first-child', { yPercent: 115 }, { yPercent: 0, duration: 0.85, stagger: 0.06, ease: 'expo.out' }, 0.4)
       .fromTo('.menu__brand, .menu__foot > *', { y: 20, autoAlpha: 0 }, { y: 0, autoAlpha: 1, stagger: 0.06, duration: 0.55, ease: 'power3.out' }, 0.7)
       .fromTo('.menu__strike path', { strokeDashoffset: 1.1 }, { strokeDashoffset: 0, duration: 0.65, ease: 'power2.inOut' }, 0.92)
@@ -88,7 +96,7 @@ export default function Nav({ ready }) {
       }).scrollTrigger
     })
 
-    const secTriggers = nav.map((item, idx) => {
+    const secTriggers = menuNav.map((item, idx) => {
       if (!item.href || item.href === '#') {
         return ScrollTrigger.create({
           trigger: '.hero', start: 'top center', end: 'bottom center',
@@ -116,7 +124,7 @@ export default function Nav({ ready }) {
 
   return (
     <div className="navw" ref={root}>
-      <header className="nav">
+      <header className="nav" dir="ltr">
         <a href="#" className="nav__brand" aria-label="الرئيسية" onClick={() => setOpen(false)}><NameLockup withMark={false} /></a>
         <a href="#" className="nav__mid" aria-label="قاسمز" onClick={() => setOpen(false)}><LogoMark /></a>
         <div className="nav__btns">
@@ -150,15 +158,17 @@ export default function Nav({ ready }) {
 
           <div className="menu__side" dir="rtl">
             <nav className="menu__links">
-              {nav.map((n, i) => (
+              {menuNav.map((n, i) => (
                 <a
                   key={n.label}
                   href={n.href}
+                  data-roll
                   className={`menu__link ${i === current ? 'is-current' : ''} ${i === active && i !== current ? 'is-hover' : ''}`}
                   onMouseEnter={() => setActive(i)}
                   onClick={() => { setCurrent(i); setOpen(false) }}
                 >
-                  <span>{n.label}</span>
+                  {/* spec: ماسك يطلع لفوق + «سلوت ماشين» نسخة ليموني بتلف مكانها */}
+                  <span className="menu__lbl"><Roll className="roll--lime">{n.label}</Roll></span>
                   {i === current && (
                     <svg className="menu__strike" viewBox="0 0 200 22" preserveAspectRatio="none" aria-hidden>
                       <path d="M2 11C20 4 36 4 54 11S88 18 106 11 140 4 158 11 182 18 198 11" pathLength="1" strokeDasharray="1 1.5" strokeDashoffset="1.1" />

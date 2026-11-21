@@ -44,6 +44,8 @@ export default function Preloader({ onDone }) {
       if (state.current.exiting) return
       state.current.exiting = true
       loop.pause()
+      gsap.set('.pre__mark', { scale: 0 })
+      gsap.set('.pre__logo', { scale: 1 })
       place()
       const z = { v: 1 }
       gsap.timeline({ onComplete: onDone })
@@ -63,12 +65,20 @@ export default function Preloader({ onDone }) {
     }
     state.current.exitFn = exit
 
-    const loop = gsap.timeline({ repeat: -1, delay: 0.2 })
-      .fromTo(pieces, { scale: 0, rotate: () => rnd() },
-        { scale: 1, rotate: 0, duration: 0.55, ease: 'back.out(2.4)', stagger: 0.12 })
+    // أول مرة: القطع بتتجمع. وبعدين لوب الـ spec: الشعار يصغر لنقطة ← النقطة تتمط لشرطة مايلة «/» ← ترجع شعار
+    const mark = root.current.querySelector('.pre__mark')
+    gsap.set(mark, { width: 14, height: 14, rotate: 0, scale: 0 })
+    const loop = gsap.timeline({ paused: true, repeat: -1, repeatDelay: 0.1 })
+      .to('.pre__logo', { scale: 0, duration: 0.38, ease: 'power3.in' })
+      .fromTo(mark, { width: 14, height: 14, rotate: 0, scale: 0 }, { scale: 1, duration: 0.2, ease: 'back.out(3)' }, '-=0.06')
+      .to(mark, { width: 10, height: 92, rotate: 24, duration: 0.34, ease: 'expo.out' }, '+=0.12')
+      .to(mark, { scale: 0, duration: 0.16, ease: 'power2.in' }, '+=0.2')
+      .fromTo('.pre__logo', { scale: 0 }, { scale: 1, duration: 0.55, ease: 'back.out(2.2)' }, '-=0.05')
       .call(() => { if (state.current.ready) exit() }, null, '+=0.35')
-      .to(pieces, { scale: 0, rotate: () => rnd(), duration: 0.34, ease: 'back.in(2)', stagger: 0.09 }, '+=0.25')
-      .to({}, { duration: 0.12 })
+    gsap.timeline({ delay: 0.2, onComplete: () => loop.play() })
+      .fromTo(pieces, { scale: 0, rotate: () => rnd() },
+        { scale: 1, rotate: 0, duration: 0.55, ease: 'back.out(2.4)', stagger: 0.1 })
+      .to({}, { duration: 0.35 })
 
     const minTime = new Promise((r) => setTimeout(r, 1500))
     const loaded = new Promise((r) => (document.readyState === 'complete' ? r() : window.addEventListener('load', r, { once: true })))
@@ -96,6 +106,7 @@ export default function Preloader({ onDone }) {
         <rect x="-50000" y="-50000" width="100000" height="100000" fill="#d2ff00" mask="url(#preHole)" />
       </svg>
       <LogoMark className="pre__logo" />
+      <span className="pre__mark" aria-hidden />
       <button className="pre__btn" data-roll onClick={skip}>
         <Roll>{site.loadLabel}</Roll>
       </button>

@@ -10,8 +10,8 @@ window.scrollTo(0, 0)
 // لمسة DevTools زي landonorris.com
 console.log(
   '%c AHMED QASSIM %c قاسمز — دايماً في الملعب ',
-  'background:#d2ff00;color:#282c20;font-weight:900;font-size:14px;padding:6px 10px;border-radius:4px 0 0 4px;',
-  'background:#282c20;color:#f4f4ed;font-weight:700;font-size:13px;padding:6px 10px;border-radius:0 4px 4px 0;'
+  'background:#d2ff00;color:#11120e;font-weight:900;font-size:14px;padding:6px 10px;border-radius:4px 0 0 4px;',
+  'background:#11120e;color:#f4f3ee;font-weight:700;font-size:13px;padding:6px 10px;border-radius:0 4px 4px 0;'
 )
 
 createRoot(document.getElementById('root')).render(

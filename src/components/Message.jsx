@@ -19,7 +19,7 @@ export default function Message() {
   const parts = message.split(/(\[\[[^\]]+\]\])/).filter(Boolean)
   let k = 0
   return (
-    <section className="msg topo topo--dark" ref={root} data-nav="dark">
+    <section className="msg topo topo--dark" id="about" ref={root} data-nav="dark">
       <LogoMark className="msg__logo" />
       <p className="eyebrow eyebrow--lime" data-hl>{site.since}</p>
       <h2 className="msg__text" data-hl>

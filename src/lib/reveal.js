@@ -66,9 +66,11 @@ export function initReveal(scope = document) {
     const played = el.__hlPlayed
     el.__hlTl?.kill()
     const lines = splitLines(el)
-    const rtl = getComputedStyle(el).direction === 'rtl'
-    const from = rtl ? 'right' : 'left', to = rtl ? 'left' : 'right'
-    if (el.dataset.hl === 'dark') el.classList.add('hl-dark')
+    // spec: الشريط يتمد من الشمال (origin left) ويتقفل لليمين (origin right)
+    const from = 'left', to = 'right'
+    // على الخلفيات الفاتحة الشريط أسود (Black Block Reveal)، على الداكنة ليموني
+    const light = el.closest('[data-nav="light"]')
+    if (el.dataset.hl === 'dark' || light) el.classList.add('hl-dark')
     if (played) return // اتعرض قبل كده — سيبه ظاهر
     gsap.set(lines.map((l) => l.txt), { opacity: 0 })
     const tl = gsap.timeline({ paused: true, onComplete: () => { el.__hlPlayed = true } })

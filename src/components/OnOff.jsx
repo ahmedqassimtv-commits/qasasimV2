@@ -34,6 +34,19 @@ export default function OnOff() {
       })
     })
 
+    // الكلمة الأولى بترسم نفسها لما القسم يظهر، والتانية مع الـ hover
+    const draw = (t) => gsap.timeline()
+      .fromTo(t, { strokeDashoffset: 900, fillOpacity: 0 }, { strokeDashoffset: 0, duration: 1.4, ease: 'power2.inOut' })
+      .to(t, { fillOpacity: 1, duration: 0.4 }, '-=0.3')
+    const texts = gsap.utils.toArray('.oo__script text')
+    gsap.set(texts, { strokeDasharray: 900, strokeDashoffset: 900, fillOpacity: 0 })
+    if (texts[0]) gsap.timeline({ scrollTrigger: { trigger: root.current, start: 'top 45%', once: true } }).add(draw(texts[0]))
+    root.current.querySelectorAll('.oo__col').forEach((col, i) => {
+      if (i === 0) return
+      let done = false
+      col.addEventListener('mouseenter', () => { if (!done) { done = true; draw(texts[i]) } })
+    })
+
     // انتقال المربعات في آخر القسم نحو القسم الداكن
     const cells = gsap.utils.toArray('.oo__px i')
     gsap.fromTo(cells, { scale: 0 }, {
@@ -66,7 +79,10 @@ export default function OnOff() {
               <span className="oo__top">{o.top}</span>
               <span className="oo__bottom">{o.bottom}</span>
             </h3>
-            <span className="oo__script" aria-hidden>{o.script}</span>
+            {/* spec: كلمة بخط اليد الليموني بترسم نفسها فوق العنوان (حدود ← تعبئة) */}
+            <svg className="oo__script" viewBox="0 0 320 150" aria-hidden>
+              <text x="160" y="112" textAnchor="middle">{o.script}</text>
+            </svg>
             <p data-hl>{o.text}</p>
             <span className="sqbtn"><ArrowIcon /></span>
           </a>

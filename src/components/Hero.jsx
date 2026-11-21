@@ -5,10 +5,10 @@ import HeroGL from '../lib/heroGL'
 import Wire from '../lib/wire'
 import { marquee } from '../lib/marquee'
 import { scroll } from '../hooks/useLenis'
-import { LogoMark } from './Bits'
+import { LogoMark, PlayIcon } from './Bits'
 import Signature from './Signature'
 import { drawSignature } from '../lib/drawSignature'
-import { hero, site } from '../data/content'
+import { hero, site, videos } from '../data/content'
 
 export default function Hero() {
   const root = useRef(null)
@@ -165,9 +165,13 @@ export default function Hero() {
             onMouseEnter={() => gl.current && (gl.current.flood = true)}
             onMouseLeave={() => gl.current && (gl.current.flood = false)}
           >
-            <span className="eyebrow">{hero.next.label}</span>
-            <span className="hero__next-line" />
-            <strong>{hero.next.title}</strong>
+            <span className="eyebrow">LATEST VIDEO</span>
+            {/* صورة آخر فيديو + زر تشغيل (spec: floating LATEST VIDEO card) */}
+            <span className="hero__next-thumb">
+              <img src={videos.items[0]?.thumb} alt="" />
+              <span className="hero__next-play"><PlayIcon /></span>
+            </span>
+            <strong>{videos.items[0]?.title || hero.next.title}</strong>
             <span className="eyebrow eyebrow--lime">{hero.next.sub}</span>
           </a>
           <button

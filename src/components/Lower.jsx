@@ -98,37 +98,59 @@ export function Videos() {
 export function Socials() {
   const root = useRef(null)
   const [playing, setPlaying] = useState(null)
-  const [hot, setHot] = useState(-1)
+  const cards5 = shorts.slice(0, 5) // spec: 5 كروت بالطول
+  const base = useRef([])
 
   useGSAP(() => {
     const mm = gsap.matchMedia()
     mm.add('(min-width: 768px)', () => {
       const cards = gsap.utils.toArray('.so__card')
       const mid = (cards.length - 1) / 2
-      gsap.fromTo(cards,
-        { xPercent: -50, x: 0, rotate: (i) => (i - mid) * 1.5, y: 120 },
-        {
-          xPercent: -50, x: (i) => `${(i - mid) * 9.2}vw`, rotate: (i) => (i - mid) * 8,
-          y: (i) => (Math.abs(i - mid) ** 1.7) * 18, ease: 'none',
-          scrollTrigger: { trigger: '.so__fan', start: 'top 92%', end: 'top 30%', scrub: 0.8 },
-        })
+      // وضع المروحة النهائي لكل كارت (x بالـ vw، دوران، ونزول على شكل قوس)
+      base.current = cards.map((_, i) => ({ x: (i - mid) * 10.5, r: (i - mid) * 9, y: Math.abs(i - mid) ** 1.6 * 22 }))
+      gsap.set(cards, { xPercent: -50, x: 0, y: 140, rotate: 0, scale: 0.92 })
+      // spec: متكوّمين في النص، ولما القسم يظهر بيتفردوا يمين وشمال زي ورق اللعب
+      gsap.to(cards, {
+        x: (i) => `${base.current[i].x}vw`, rotate: (i) => base.current[i].r, y: (i) => base.current[i].y, scale: 1,
+        duration: 1.3, ease: 'expo.out', stagger: { each: 0.05, from: 'center' },
+        scrollTrigger: { trigger: '.so__fan', start: 'top 75%', once: true },
+      })
     })
+    return () => mm.revert()
   }, { scope: root })
 
+  // spec: الكارت اللي عليه الماوس بيطلع ويتعدل ويكبر، واللي جنبه بيتزقوا بعيد بـ spring
+  const hover = (h) => {
+    if (!base.current.length || innerWidth < 768) return
+    gsap.utils.toArray('.so__card', root.current).forEach((el, i) => {
+      const b = base.current[i]
+      const d = h < 0 ? 0 : i - h
+      const push = h < 0 || d === 0 ? 0 : Math.sign(d) * (Math.abs(d) === 1 ? 3.2 : 1.6)
+      gsap.to(el, {
+        x: `${b.x + push}vw`,
+        y: d === 0 && h >= 0 ? b.y - 60 : b.y,
+        rotate: d === 0 && h >= 0 ? 0 : b.r,
+        scale: d === 0 && h >= 0 ? 1.1 : 1,
+        zIndex: d === 0 && h >= 0 ? 30 : 10 - Math.abs(i - (base.current.length - 1) / 2),
+        duration: 0.9, ease: 'elastic.out(1, 0.65)', overwrite: 'auto',
+      })
+    })
+  }
+
   const open = (s) => (e) => { if (!s.id) return; e.preventDefault(); setPlaying(s) }
-  const mid = (shorts.length - 1) / 2
+  const mid = (cards5.length - 1) / 2
 
   return (
     <section className="so topo topo--light" ref={root} data-nav="light">
       <h3 className="so__title" data-hl>
         <span className="t-bold">إيه الجديد</span>
-        <span className="serif">على الشورتس</span>
+        <span className="serif">على السوشيال</span>
       </h3>
-      <div className={`so__fan ${hot > -1 ? 'has-hot' : ''}`} onMouseLeave={() => setHot(-1)}>
-        {shorts.map((s, i) => (
-          <a href={s.href} className={`so__card ${hot === i ? 'is-hot' : ''}`} key={i} target="_blank" rel="noreferrer"
-            style={{ zIndex: hot === i ? 30 : 10 - Math.round(Math.abs(i - mid)) }}
-            onMouseEnter={() => setHot(i)} onClick={open(s)}>
+      <div className="so__fan" onMouseLeave={() => hover(-1)}>
+        {cards5.map((s, i) => (
+          <a href={s.href} className="so__card" key={i} target="_blank" rel="noreferrer"
+            style={{ zIndex: 10 - Math.round(Math.abs(i - mid)) }}
+            onMouseEnter={() => hover(i)} onClick={open(s)}>
             <span className="so__in">
               <img src={s.thumb} alt={s.title} loading="lazy" />
               <span className="so__play"><PlayIcon /></span>
@@ -173,7 +195,8 @@ export function Footer() {
     return () => stop()
   }, { scope: root })
 
-  const chips = [...socials.map((s) => s.label), 'مراجعات', 'حكايات', 'مقالات', 'شورتس', 'قاسمز']
+  // من غير تكرار الاسم — اللوجو هو الفاصل
+  const chips = [...socials.map((s) => s.label), 'مراجعات', 'حكايات', 'مقالات', 'شورتس']
 
   return (
     <footer className="ft" ref={root} data-nav="dark">
@@ -230,15 +253,16 @@ export function Footer() {
             </div>
           </div>
 
-          {/* البورتريه بالكاب والنظارة في المنتصف ملاصق للحافة السفلية (مثل خوذة لاندو في image_4.png) */}
-          <img className="ft__photo" src={asset('images/hero-2.webp')} alt={site.nameAr} loading="lazy" />
+          {/* البورتريه من غير كاب ونضارة، كبير وملاصق للحافة السفلية */}
+          <img className="ft__photo" src={asset('images/hero-1.webp')} alt={site.nameAr} loading="lazy" />
 
-          {/* زر التعاون الليموني العائم في منتصف أسفل الصورة */}
-          <div className="ft__cta">
-            <Btn href={`mailto:${site.email}`} theme="lime" className="ft__mail" icon={<ArrowIcon />}>
-              للتعاون والإعلانات
-            </Btn>
-          </div>
+          {/* spec: شعاع نور رأسي زي ضوء الخوذة فوق شريط BUSINESS ENQUIRIES الليموني بعرض اللوحة */}
+          <span className="ft__beam" aria-hidden />
+          <a href={`mailto:${site.email}`} className="ft__bizbar" data-roll>
+            <Roll>BUSINESS ENQUIRIES</Roll>
+            <span className="ft__bizbar-ar">للتعاون والإعلانات</span>
+            <ArrowIcon />
+          </a>
 
           {/* لسانان ليمونيان منحنيان في الزاويتين السفليتين (يمين وشمال) بالظبط مثل image_4.png */}
           <div className="ft__corner ft__corner--start">
